@@ -5,7 +5,9 @@
    [reagent.session :as session]
    [reitit.frontend :as reitit]
    [clerk.core :as clerk]
-   [accountant.core :as accountant]))
+   [accountant.core :as accountant]
+   [re-frame.core :as rf]
+   [game-wiki-clojurescript.re-frame]))
 
 ;; -------------------------
 ;; Routes
@@ -13,10 +15,10 @@
 (def router
   (reitit/router
    [["/" :index]
-    ["/items"
-     ["" :items]
-     ["/:item-id" :item]]
-    ["/about" :about]
+    ;; ["/items"
+    ;;  ["" :items]
+    ;;  ["/:item-id" :item]]
+    ;; ["/about" :about]
     ["/cards" :cards-list]
     ["/faq" :faq-list]]))
 
@@ -81,7 +83,15 @@
 
 (defn cards-list-page []
   (fn []
-    [:div "Hello World - I'm the cards page"]))
+    [:div
+     [:div "Filtering"]
+     [:hr]
+     (let [cards @(rf/subscribe [:cards])]
+       [:div
+        [:h4 "Cards: " (count cards)]
+        [:ul
+         (for [{:keys [id name]} cards]
+           ^{:key id} [:li name])]])]))
 
 (defn faq-list-page []
   (fn []
@@ -132,4 +142,5 @@
     (fn [path]
       (boolean (reitit/match-by-path router path)))})
   (accountant/dispatch-current!)
+  (rf/dispatch-sync [:initialize])
   (mount-root))
