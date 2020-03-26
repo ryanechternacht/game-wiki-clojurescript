@@ -28,30 +28,30 @@
 ;; -------------------------
 ;; Page components
 
-(defn home-page []
-  (fn []
-    [:span.main
-     [:h1 "Welcome to game-wiki-clojurescript"]
-     [:ul
-      [:li [:a {:href (path-for :items)} "Items of game-wiki-clojurescript"]]
-      [:li [:a {:href "/broken/link"} "Broken link"]]]]))
+;; (defn home-page []
+;;   (fn []
+;;     [:span.main
+;;      [:h1 "Welcome to game-wiki-clojurescript"]
+;;      [:ul
+;;       [:li [:a {:href (path-for :items)} "Items of game-wiki-clojurescript"]]
+;;       [:li [:a {:href "/broken/link"} "Broken link"]]]]))
 
-(defn items-page []
-  (fn []
-    [:span.main
-     [:h1 "The items of game-wiki-clojurescript"]
-     [:ul (map (fn [item-id]
-                 [:li {:name (str "item-" item-id) :key (str "item-" item-id)}
-                  [:a {:href (path-for :item {:item-id item-id})} "Item: " item-id]])
-               (range 1 60))]]))
+;; (defn items-page []
+;;   (fn []
+;;     [:span.main
+;;      [:h1 "The items of game-wiki-clojurescript"]
+;;      [:ul (map (fn [item-id]
+;;                  [:li {:name (str "item-" item-id) :key (str "item-" item-id)}
+;;                   [:a {:href (path-for :item {:item-id item-id})} "Item: " item-id]])
+;;                (range 1 60))]]))
 
-(defn item-page []
-  (fn []
-    (let [routing-data (session/get :route)
-          item (get-in routing-data [:route-params :item-id])]
-      [:span.main
-       [:h1 (str "Item " item " of game-wiki-clojurescript")]
-       [:p [:a {:href (path-for :items)} "Back to the list of items"]]])))
+;; (defn item-page []
+;;   (fn []
+;;     (let [routing-data (session/get :route)
+;;           item (get-in routing-data [:route-params :item-id])]
+;;       [:span.main
+;;        [:h1 (str "Item " item " of game-wiki-clojurescript")]
+;;        [:p [:a {:href (path-for :items)} "Back to the list of items"]]])))
 
 (defn about-page []
   (fn [] [:span.main
@@ -71,7 +71,7 @@
         [:li {:class "nav-item active"}
          [:a {:class "nav-link" :href "/cards"} "Card List"]]
         [:li {:class "nav-item"}
-         [:a {:class "nav-link" :href "#"} "FAQ"]]]]]]))
+         [:a {:class "nav-link" :href "/faq"} "FAQ"]]]]]]))
 
 (defn the-footer []
   (fn []
@@ -92,10 +92,10 @@
 
 (defn page-for [route]
   (case route
-    :index #'home-page
-    :about #'about-page
-    :items #'items-page
-    :item #'item-page
+    ;; :index #'home-page
+    ;; :about #'about-page
+    ;; :items #'items-page
+    ;; :item #'item-page
     :cards-list #'cards-list-page
     :faq-list #'faq-list-page))
 

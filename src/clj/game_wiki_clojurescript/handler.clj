@@ -17,6 +17,7 @@
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1"}]
    (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))
+   ;; Bootstrap
    (include-js "https://code.jquery.com/jquery-3.4.1.slim.min.js")
    (include-js "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js")
    (include-css "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css")
@@ -41,11 +42,11 @@
   (reitit-ring/ring-handler
    (reitit-ring/router
     [["/" {:get {:handler index-handler}}]
-     ["/items"
-      ["" {:get {:handler index-handler}}]
-      ["/:item-id" {:get {:handler index-handler
-                          :parameters {:path {:item-id int?}}}}]]
-     ["/about" {:get {:handler index-handler}}]
+    ;;  ["/items"
+    ;;   ["" {:get {:handler index-handler}}]
+    ;;   ["/:item-id" {:get {:handler index-handler
+    ;;                       :parameters {:path {:item-id int?}}}}]]
+    ;;  ["/about" {:get {:handler index-handler}}]
      ["/cards" {:get {:handler index-handler}}]
      ["/faq" {:get {:handler index-handler}}]])
    (reitit-ring/routes
