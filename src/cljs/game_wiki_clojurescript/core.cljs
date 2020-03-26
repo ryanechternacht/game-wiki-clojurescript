@@ -15,7 +15,9 @@
     ["/items"
      ["" :items]
      ["/:item-id" :item]]
-    ["/about" :about]]))
+    ["/about" :about]
+    ["/cards" :cards-list]
+    ["/faq" :faq-list]]))
 
 (defn path-for [route & [params]]
   (if params
@@ -60,15 +62,23 @@
      [:nav {:class "navbar navbar-dark bg-primary navbar-expand-lg"}
       [:a {:class "navbar-brand" :href "#"} "Game Wiki"]
       [:button {:class "navbar-toggler" :type "button" :data-toggle "collapse"
-                :data-target "#navbarTogglerDemo02"}
+                :data-target "#navbar-toggler"}
        [:span {:class "navbar-toggler-icon"}]]
-      [:div#navbarTogglerDemo02 {:class "collapse navbar-collapse"}
+      [:div#navbar-toggler {:class "collapse navbar-collapse"}
        [:ul {:class "navbar-nav"}
          ;; TODO Links
         [:li {:class "nav-item active"}
-         [:a {:class "nav-link" :href "#"} "Card List"]]
+         [:a {:class "nav-link" :href "/cards"} "Card List"]]
         [:li {:class "nav-item"}
          [:a {:class "nav-link" :href "#"} "FAQ"]]]]]]))
+
+(defn cards-list-page []
+  (fn []
+    [:div "Hello World - I'm the cards page"]))
+
+(defn faq-list-page []
+  (fn []
+    [:div "Hello World - I'm the FAQ page"]))
 
 ;; -------------------------
 ;; Translate routes -> page components
@@ -78,7 +88,9 @@
     :index #'home-page
     :about #'about-page
     :items #'items-page
-    :item #'item-page))
+    :item #'item-page
+    :cards-list #'cards-list-page
+    :faq-list #'faq-list-page))
 
 ;; -------------------------
 ;; Page mounting component
