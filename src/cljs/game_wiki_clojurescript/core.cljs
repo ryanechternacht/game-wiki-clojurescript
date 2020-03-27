@@ -10,6 +10,11 @@
    [game-wiki-clojurescript.re-frame]))
 
 ;; -------------------------
+;; Helper funcs 
+; Gets value of js event (for use in :on-change, etc.)
+(def get-event-value #(-> % .-target .-value))
+
+;; -------------------------
 ;; Routes
 
 (def router
@@ -89,22 +94,6 @@
 ;;     </div>
 
 ;;     <div class="header-row">
-;;       <category-filter
-;;         description="Card Type"
-;;         category="type"
-;;         :values="cardTypes"
-;;         @add-filter="addFilter"
-;;       />
-;;     </div>
-;;     <div class="header-row">
-;;       <category-filter
-;;         description="Building Tag"
-;;         category="building tag"
-;;         :values="buildingTags"
-;;         @add-filter="addFilter"
-;;       />
-;;     </div>
-;;     <div class="header-row">
 ;;       <existence-filter description="Is an Action" type="action" @add-filter="addFilter" />
 ;;     </div>
 
@@ -124,30 +113,20 @@
       (for [filter @(rf/subscribe [:cards-active-filters])]
         [:span (str filter)])]]))
 
-;;       <div>
-  ;;   <b-form inline>
-  ;;     <label class="mr-4">{{description}}:</label>
-  ;;     <b-form-select v-model="selected" :options="formattedOptions" class="mr-4" />
-  ;;     <b-button variant="outline-primary" @click="addFilter(selected)">Add Filter</b-button>
-  ;;   </b-form>
-  ;; </div>
-
-;;TODO? {:keys [category values description]}
-(defn category-filter []
-  (let [val (r/atom "automated")]
+(defn category-filter [{:keys [category values description]}]
+  (let [val (r/atom (first values))]
     (fn []
       [:form {:class "form-inline"}
-       [:label {:class "mr-4"} "Card Type"]
+       [:label {:class "mr-4"} description]
        [:select {:class "mr-4 form-control"
-                 :on-change #(reset! val (-> % .-target .-value))}
-        [:option {:key :automated} "automated"]
-        [:option {:key :active} "active"]
-        [:option {:key :event} "event"]]
+                 :on-change #(reset! val (get-event-value %))}
+        (for [v values]
+          [:option {:key (keyword v)} v])]
        [:button
         {:type "button"
          :class "btn btn-outline-primary"
          :on-click #(rf/dispatch
-                     [:add-card-filter {:category {:tag "type"
+                     [:add-card-filter {:category {:tag category
                                                    :value @val}}])}
         "Add Filter"]])))
 
@@ -156,8 +135,10 @@
     [:div
      [:h3 "Filter Cards"]
      [active-filters]
-     [:div.header-row
-      [category-filter]]]))
+     [:div {:class "header-row"}
+      [category-filter @(rf/subscribe [:cards-filters-types])]]
+     [:div {:class "header-row"}
+      [category-filter @(rf/subscribe [:cards-filters-tags])]]]))
 
 (defn cards-list-page []
   (fn []

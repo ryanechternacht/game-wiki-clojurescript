@@ -28,7 +28,7 @@
                          :cost 13}
                         {:name "cloud seeding"
                          :id 4
-                         :tags []
+                         :tags [{:name "type" :value "automated"}]
                          :cost 11}
                         {:name "search for life"
                          :id 5
@@ -86,7 +86,23 @@
                                 {:name "raises TR" :value 2}
                                 {:name "type" :value "event"}]
                          :cost 17}]
-            :active-filters []}}))
+            :active-filters []
+            :filters {:type {:category "type"
+                             :values ["automated" "active" "event"]
+                             :description "Card Type"}
+                      :building-tags {:category "building tag"
+                                      :values ["power"
+                                               "building"
+                                               "city"
+                                               "event"
+                                               "space"
+                                               "jove"
+                                               "venus"
+                                               "animal"
+                                               "microbe"
+                                               "plant"
+                                               "science"]
+                                      :description "Building Tag"}}}}))
 
 ;;TODO add an inc id to filter (for reagent keys)
 (rf/reg-event-db
@@ -105,6 +121,16 @@
  :cards-active-filters
  (fn [db _]
    (get-in db [:cards :active-filters])))
+
+(rf/reg-sub
+ :cards-filters-types
+ (fn [db _]
+   (get-in db [:cards :filters :type])))
+
+(rf/reg-sub
+ :cards-filters-tags
+ (fn [db _]
+   (get-in db [:cards :filters :building-tags])))
 
 ;; takes a filter and returns a func to be used with filter
 ;; category filter looks like {:category {:tag "type", :value "automated"}}
