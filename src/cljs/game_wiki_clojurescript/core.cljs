@@ -81,12 +81,82 @@
      [:div.container
       [:span "Game Wiki © 2020"]]]))
 
+;;     <div class="header-row inline chip-height">
+;;       Active Filters:
+;;       <div class="inline">
+;;         <filter-list :filters="filters" @remove-filter="removeFilter" />
+;;       </div>
+;;     </div>
+
+;;     <div class="header-row">
+;;       <category-filter
+;;         description="Card Type"
+;;         category="type"
+;;         :values="cardTypes"
+;;         @add-filter="addFilter"
+;;       />
+;;     </div>
+;;     <div class="header-row">
+;;       <category-filter
+;;         description="Building Tag"
+;;         category="building tag"
+;;         :values="buildingTags"
+;;         @add-filter="addFilter"
+;;       />
+;;     </div>
+;;     <div class="header-row">
+;;       <existence-filter description="Is an Action" type="action" @add-filter="addFilter" />
+;;     </div>
+
+;;     <div class="header-row">
+;;       <b-button @click="this.clearFilters" variant="primary">Clear Filters</b-button>
+;;     </div>
+;;     
+
+
+(defn active-filters []
+  (fn []
+    [:div {:class "header-row inline chip-height"}
+     "Active Filters:"
+     [:div.inline
+      ;;TODO style these correctly
+      ;;add a ^{:key ...} to this
+      (for [filter @(rf/subscribe [:cards-active-filters])]
+        [:span (str filter)])]]))
+
+;;       <div>
+  ;;   <b-form inline>
+  ;;     <label class="mr-4">{{description}}:</label>
+  ;;     <b-form-select v-model="selected" :options="formattedOptions" class="mr-4" />
+  ;;     <b-button variant="outline-primary" @click="addFilter(selected)">Add Filter</b-button>
+  ;;   </b-form>
+  ;; </div>
+
+;;TODO? {:keys [category values description]}
+(defn category-filter []
+  (fn []
+    [:div ;;TODO inline form styling
+     [:label.mr-4 "Card Type"]
+     [:select.mr-4 ;; TODO styling
+      [:option "automated"]
+      [:option "active"]
+      [:option "event"]]
+     [:button {:on-click #(rf/dispatch [:add-card-filter {:category {:tag "type" :value "automated"}}])} "Add Filter"]]))
+
+(defn cards-filtering []
+  (fn []
+    [:div
+     [:h3 "Filter Cards"]
+     [active-filters]
+     [:div.header-row
+      [category-filter]]]))
+
 (defn cards-list-page []
   (fn []
     [:div
-     [:div "Filtering"]
+     [cards-filtering]
      [:hr]
-     (let [cards @(rf/subscribe [:cards])]
+     (let [cards @(rf/subscribe [:visible-cards])]
        [:div
         [:h4 "Cards: " (count cards)]
         [:ul
@@ -117,7 +187,8 @@
     (let [page (:current-page (session/get :route))]
       [:div
        [the-header]
-       [page]
+       [:div {:class "main-view container"}
+        [page]]
        [the-footer]])))
 
 ;; -------------------------

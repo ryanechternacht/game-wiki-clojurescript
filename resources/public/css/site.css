@@ -4,3 +4,20 @@
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
+
+.header-row {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.inline {
+  display: inline;
+}
+
+.chip-height {
+  line-height: 36px;
+}
+
+.main-view {
+  margin-top: 20px;
+}
