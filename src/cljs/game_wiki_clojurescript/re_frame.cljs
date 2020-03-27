@@ -111,16 +111,23 @@
   (do
     (swap! next-filter-id inc)))
 
+;;TODO prevent duplicates
 (rf/reg-event-db
  :add-card-filter
  [(rf/path [:cards :active-filters])]
  (fn [active-filters [_ filter]]
-   (conj active-filters filter)))
+   (conj active-filters (assoc filter :id (get-next-filter-id)))))
 
 (rf/reg-event-db
  :clear-filters
  [(rf/path [:cards :active-filters])]
  (fn [_ _] []))
+
+(rf/reg-event-db
+ :remove-filter
+ [(rf/path [:cards :active-filters])]
+ (fn [filters [_ id]]
+   (vec (filter #(not= (:id %) id) filters))))
 
 ;; Subscriptions
 (rf/reg-sub

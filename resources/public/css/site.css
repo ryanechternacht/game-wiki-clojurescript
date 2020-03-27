@@ -21,3 +21,24 @@
 .main-view {
   margin-top: 20px;
 }
+
+/* ripped striaght from materialize 0.100 */
+.chip {
+  display: inline-block;
+  height: 32px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background-color: #e4e4e4;
+  margin-right: 5px;
+}
+
+.close-button {
+  padding-left: 5px;
+  padding-right: 5px;
+  cursor: pointer;
+  font-weight: bolder;
+}

@@ -16,7 +16,6 @@
 
 ;; -------------------------
 ;; Routes
-
 (def router
   (reitit/router
    [["/" :index]
@@ -74,7 +73,7 @@
        [:span {:class "navbar-toggler-icon"}]]
       [:div#navbar-toggler {:class "collapse navbar-collapse"}
        [:ul {:class "navbar-nav"}
-         ;; TODO Links
+         ;; TODO change active based on route
         [:li {:class "nav-item active"}
          [:a {:class "nav-link" :href "/cards"} "Card List"]]
         [:li {:class "nav-item"}
@@ -86,27 +85,23 @@
      [:div.container
       [:span "Game Wiki © 2020"]]]))
 
-;;     <div class="header-row inline chip-height">
-;;       Active Filters:
-;;       <div class="inline">
-;;         <filter-list :filters="filters" @remove-filter="removeFilter" />
-;;       </div>
-;;     </div>
-
-;;     <div class="header-row">
-;;       <b-button @click="this.clearFilters" variant="primary">Clear Filters</b-button>
-;;     </div>
-;;     
+(defn determine-filter-text [{:keys [category has does-not-have] :as filter}]
+  (cond
+    category (str (:tag category) ": " (:value category))
+    has (str "Has " (:tag has))
+    does-not-have (str "Doesn't Have " (:tag does-not-have))
+    :else (str filter)))
 
 (defn active-filters []
   (fn []
     [:div {:class "header-row inline chip-height"}
      "Active Filters:"
      [:div.inline
-      ;;TODO style these correctly
-      ;;add a ^{:key ...} to this
       (for [filter @(rf/subscribe [:cards-active-filters])]
-        [:span (str filter)])]]))
+        (let [id (:id filter)]
+          ^{:key id} [:span.chip (determine-filter-text filter)
+                      [:span.close-button
+                       {:on-click #(rf/dispatch [:remove-filter id])} "X"]]))]]))
 
 (defn category-filter [{:keys [category values description]}]
   (let [val (r/atom (first values))]
@@ -137,9 +132,6 @@
                 :on-click #(rf/dispatch
                             [:add-card-filter {:does-not-have {:tag type}}])} "No"]]]))
 
-;; <div class= "header-row" >
-;;   <b-button @click= "this.clearFilters" variant= "primary" >Clear Filters</b-button>
-;; </div>
 (defn clear-filters []
   (fn []
     [:div {:class "header-row"}
