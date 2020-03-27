@@ -1,5 +1,5 @@
 (ns game-wiki-clojurescript.re-frame
-  (:require [reagent.core :as reagent]
+  (:require [reagent.core :as r]
             [re-frame.core :as rf]
             [clojure.string :as str]))
 
@@ -102,9 +102,15 @@
                                                "microbe"
                                                "plant"
                                                "science"]
-                                      :description "Building Tag"}}}}))
+                                      :description "Building Tag"}
+                      :action {:description "Is an Action"
+                               :type "action"}}}}))
 
-;;TODO add an inc id to filter (for reagent keys)
+(def next-filter-id (r/atom 0))
+(defn get-next-filter-id []
+  (do
+    (swap! next-filter-id inc)))
+
 (rf/reg-event-db
  :add-card-filter
  [(rf/path [:cards :active-filters])]
@@ -132,15 +138,30 @@
  (fn [db _]
    (get-in db [:cards :filters :building-tags])))
 
+(rf/reg-sub
+ :cards-filters-action
+ (fn [db _]
+   (get-in db [:cards :filters :action])))
+
 ;; takes a filter and returns a func to be used with filter
 ;; category filter looks like {:category {:tag "type", :value "automated"}}
-(defn make-filter-fn [{:keys [category]}]
+(defn make-filter-fn [{:keys [category has does-not-have]}]
   (cond
     category (let [{tag :tag cat-value :value} category]
                (fn [{tags :tags}]
                  (some (fn [{name :name tag-value :value}]
                          (and (= name tag) (= cat-value tag-value)))
                        tags)))
+    has (let [{target :tag} has]
+          (fn [{tags :tags}]
+            (some (fn [{name :name}]
+                    (= name target))
+                  tags)))
+    does-not-have (let [{target :tag} does-not-have]
+                    (fn [{tags :tags}]
+                      (not-any? (fn [{name :name}]
+                                  (= name target))
+                                tags)))
     :else (fn [x] true)))
 
 (rf/reg-sub

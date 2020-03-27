@@ -94,10 +94,6 @@
 ;;     </div>
 
 ;;     <div class="header-row">
-;;       <existence-filter description="Is an Action" type="action" @add-filter="addFilter" />
-;;     </div>
-
-;;     <div class="header-row">
 ;;       <b-button @click="this.clearFilters" variant="primary">Clear Filters</b-button>
 ;;     </div>
 ;;     
@@ -129,6 +125,18 @@
                      [:add-card-filter {:category {:tag category
                                                    :value @val}}])}
         "Add Filter"]])))
+;; has: { tag: this.type }
+(defn existence-filter [{:keys [description type]}]
+  (fn []
+    [:form {:class "form-inline"}
+     [:label {:class "mr-4"} description]
+     [:div.btn-group
+      [:button {:type "button" :class "btn btn-outline-primary"
+                :on-click #(rf/dispatch
+                            [:add-card-filter {:has {:tag type}}])} "Yes"]
+      [:button {:type "button" :class "btn btn-outline-primary"
+                :on-click #(rf/dispatch
+                            [:add-card-filter {:does-not-have {:tag type}}])} "No"]]]))
 
 (defn cards-filtering []
   (fn []
@@ -138,7 +146,9 @@
      [:div {:class "header-row"}
       [category-filter @(rf/subscribe [:cards-filters-types])]]
      [:div {:class "header-row"}
-      [category-filter @(rf/subscribe [:cards-filters-tags])]]]))
+      [category-filter @(rf/subscribe [:cards-filters-tags])]]
+     [:div {:class "header-row"}
+      [existence-filter @(rf/subscribe [:cards-filters-action])]]]))
 
 (defn cards-list-page []
   (fn []
