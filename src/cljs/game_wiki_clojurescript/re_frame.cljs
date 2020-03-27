@@ -117,6 +117,11 @@
  (fn [active-filters [_ filter]]
    (conj active-filters filter)))
 
+(rf/reg-event-db
+ :clear-filters
+ [(rf/path [:cards :active-filters])]
+ (fn [_ _] []))
+
 ;; Subscriptions
 (rf/reg-sub
  :cards

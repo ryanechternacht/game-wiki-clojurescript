@@ -98,7 +98,6 @@
 ;;     </div>
 ;;     
 
-
 (defn active-filters []
   (fn []
     [:div {:class "header-row inline chip-height"}
@@ -125,7 +124,7 @@
                      [:add-card-filter {:category {:tag category
                                                    :value @val}}])}
         "Add Filter"]])))
-;; has: { tag: this.type }
+
 (defn existence-filter [{:keys [description type]}]
   (fn []
     [:form {:class "form-inline"}
@@ -138,6 +137,15 @@
                 :on-click #(rf/dispatch
                             [:add-card-filter {:does-not-have {:tag type}}])} "No"]]]))
 
+;; <div class= "header-row" >
+;;   <b-button @click= "this.clearFilters" variant= "primary" >Clear Filters</b-button>
+;; </div>
+(defn clear-filters []
+  (fn []
+    [:div {:class "header-row"}
+     [:button {:class "btn btn-primary"
+               :on-click #(rf/dispatch [:clear-filters])} "Clear Filters"]]))
+
 (defn cards-filtering []
   (fn []
     [:div
@@ -148,7 +156,8 @@
      [:div {:class "header-row"}
       [category-filter @(rf/subscribe [:cards-filters-tags])]]
      [:div {:class "header-row"}
-      [existence-filter @(rf/subscribe [:cards-filters-action])]]]))
+      [existence-filter @(rf/subscribe [:cards-filters-action])]]
+     [clear-filters]]))
 
 (defn cards-list-page []
   (fn []
