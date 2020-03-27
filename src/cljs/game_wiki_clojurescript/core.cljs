@@ -1,6 +1,6 @@
 (ns game-wiki-clojurescript.core
   (:require
-   [reagent.core :as reagent :refer [atom]]
+   [reagent.core :as r]
    [reagent.dom :as dom]
    [reagent.session :as session]
    [reitit.frontend :as reitit]
@@ -134,14 +134,22 @@
 
 ;;TODO? {:keys [category values description]}
 (defn category-filter []
-  (fn []
-    [:div ;;TODO inline form styling
-     [:label.mr-4 "Card Type"]
-     [:select.mr-4 ;; TODO styling
-      [:option "automated"]
-      [:option "active"]
-      [:option "event"]]
-     [:button {:on-click #(rf/dispatch [:add-card-filter {:category {:tag "type" :value "automated"}}])} "Add Filter"]]))
+  (let [val (r/atom "automated")]
+    (fn []
+      [:form {:class "form-inline"}
+       [:label {:class "mr-4"} "Card Type"]
+       [:select {:class "mr-4 form-control"
+                 :on-change #(reset! val (-> % .-target .-value))}
+        [:option {:key :automated} "automated"]
+        [:option {:key :active} "active"]
+        [:option {:key :event} "event"]]
+       [:button
+        {:type "button"
+         :class "btn btn-outline-primary"
+         :on-click #(rf/dispatch
+                     [:add-card-filter {:category {:tag "type"
+                                                   :value @val}}])}
+        "Add Filter"]])))
 
 (defn cards-filtering []
   (fn []
@@ -205,7 +213,7 @@
       (let [match (reitit/match-by-path router path)
             current-page (:name (:data  match))
             route-params (:path-params match)]
-        (reagent/after-render clerk/after-render!)
+        (r/after-render clerk/after-render!)
         (session/put! :route {:current-page (page-for current-page)
                               :route-params route-params})
         (clerk/navigate-page! path)))

@@ -108,7 +108,7 @@
 
 ;; takes a filter and returns a func to be used with filter
 ;; category filter looks like {:category {:tag "type", :value "automated"}}
-(defn make-filter-func [{:keys [category]}]
+(defn make-filter-fn [{:keys [category]}]
   (cond
     category (let [{tag :tag cat-value :value} category]
                (fn [{tags :tags}]
@@ -122,6 +122,6 @@
    [(rf/subscribe [:cards])
     (rf/subscribe [:cards-active-filters])])
  (fn [[cards filters] _]
-   (if-let [f1 (make-filter-func (first filters))]
-     (filter f1 cards)
+   (if-let [f (make-filter-fn (first filters))]
+     (filter f cards)
      cards)))
