@@ -140,7 +140,8 @@
                (fn [{tags :tags}]
                  (some (fn [{name :name tag-value :value}]
                          (and (= name tag) (= cat-value tag-value)))
-                       tags)))))
+                       tags)))
+    :else (fn [x] true)))
 
 (rf/reg-sub
  :visible-cards
@@ -148,6 +149,6 @@
    [(rf/subscribe [:cards])
     (rf/subscribe [:cards-active-filters])])
  (fn [[cards filters] _]
-   (if-let [f (make-filter-fn (first filters))]
-     (filter f cards)
-     cards)))
+   (if (empty? filters)
+     cards
+     (filter (apply every-pred (map make-filter-fn filters)) cards))))
