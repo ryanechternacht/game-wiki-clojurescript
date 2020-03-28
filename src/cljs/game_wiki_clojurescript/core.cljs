@@ -95,7 +95,7 @@
 (defn active-filters []
   (fn []
     [:div {:class "header-row inline chip-height"}
-     "Active Filters:"
+     "Active Filters: "
      [:div.inline
       (for [filter @(rf/subscribe [:cards-active-filters])]
         (let [id (:id filter)]
@@ -107,8 +107,8 @@
   (let [val (r/atom (first values))]
     (fn []
       [:form {:class "form-inline"}
-       [:label {:class "mr-4"} description]
-       [:select {:class "mr-4 form-control"
+       [:label {:class "mr-4"} (str description ":")]
+       [:select {:class "mr-4 custom-select"
                  :on-change #(reset! val (get-event-value %))}
         (for [v values]
           [:option {:key (keyword v)} v])]
