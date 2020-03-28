@@ -8,6 +8,7 @@
    [accountant.core :as accountant]
    [re-frame.core :as rf]
    [game-wiki-clojurescript.cards.views :as cards]
+   [game-wiki-clojurescript.faqs.views :as faqs]
    [game-wiki-clojurescript.re-frame]))
 
 ;; -------------------------
@@ -56,17 +57,13 @@
      [:div.container
       [:span "Game Wiki © 2020"]]]))
 
-(defn faq-list-page []
-  (fn []
-    [:div "Hello World - I'm the FAQ page"]))
-
 ;; -------------------------
 ;; Translate routes -> page components
 
 (defn page-for [route]
   (case route
     :card-list #'cards/cards-list-page
-    :faq-list #'faq-list-page))
+    :faq-list #'faqs/faq-list-page))
 
 ;; -------------------------
 ;; Page mounting component
