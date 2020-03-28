@@ -16,13 +16,20 @@
 (def router
   (reitit/router
    [["/" :index]
-    ["/cards" :card-list]
-    ["/faq" :faq-list]]))
+    ["/cards" {:name :card-list :area :cards}]
+    ["/faqs" {:area :faqs}
+     ["" :faq-list]
+     ["/:faq-id" :faq]]]))
+
+(defn route-for [route & [params]]
+  (if params
+    (reitit/match-by-name router route params)
+    (reitit/match-by-name router route)))
 
 (defn path-for [route & [params]]
-  (if params
-    (:path (reitit/match-by-name router route params))
-    (:path (reitit/match-by-name router route))))
+  (:path (if params
+           (route-for route params)
+           (route-for route))))
 
 ;; -------------------------
 ;; Page components
@@ -44,12 +51,13 @@
                 :data-target "#navbar-toggler"}
        [:span {:class "navbar-toggler-icon"}]]
       [:div#navbar-toggler {:class "collapse navbar-collapse"}
-       [:ul {:class "navbar-nav"}
+       (let [current-area (session/get-in [:route :current-route :data :area])]
+         [:ul {:class "navbar-nav"}
          ;; TODO change active based on route
-        [:li {:class "nav-item active"}
-         [:a {:class "nav-link" :href (path-for :card-list)} "Card List"]]
-        [:li {:class "nav-item"}
-         [:a {:class "nav-link" :href (path-for :faq-list)} "FAQ"]]]]]]))
+          [:li.nav-item {:class (str (if (= :cards current-area) "active"))}
+           [:a.nav-link {:href (path-for :card-list)} "Card List"]]
+          [:li.nav-item {:class (str (if (= :faqs current-area) "active"))}
+           [:a.nav-link {:href (path-for :faq-list)} "FAQ"]]])]]]))
 
 (defn the-footer []
   (fn []
@@ -59,11 +67,12 @@
 
 ;; -------------------------
 ;; Translate routes -> page components
-
+; Should these just be rolled into the router?
 (defn page-for [route]
   (case route
     :card-list #'cards/cards-list-page
-    :faq-list #'faqs/faq-list-page))
+    :faq-list #'faqs/faq-list-page
+    :faq #'faqs/faq-page))
 
 ;; -------------------------
 ;; Page mounting component
@@ -93,6 +102,7 @@
             route-params (:path-params match)]
         (r/after-render clerk/after-render!)
         (session/put! :route {:current-page (page-for current-page)
+                              :current-route (route-for current-page)
                               :route-params route-params})
         (clerk/navigate-page! path)))
     :path-exists?
