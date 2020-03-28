@@ -68,6 +68,9 @@
 ;; -------------------------
 ;; Translate routes -> page components
 ; Should these just be rolled into the router?
+; I guess this way gives you a level of indirection?
+; and the router technically exists w/o knowing anything of
+; our codebase
 (defn page-for [route]
   (case route
     :card-list #'cards/cards-list-page
