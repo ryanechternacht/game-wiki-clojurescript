@@ -42,3 +42,8 @@
   cursor: pointer;
   font-weight: bolder;
 }
+
+.label {
+  color: #444;
+  font-style: italic;
+}

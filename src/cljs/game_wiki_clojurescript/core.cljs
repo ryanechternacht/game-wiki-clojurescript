@@ -19,7 +19,8 @@
     ["/cards" {:name :card-list :area :cards}]
     ["/faqs" {:area :faqs}
      ["" :faq-list]
-     ["/:faq-id" :faq]]]))
+     ["/:faq-id" :faq]
+     ["/search/:search-term" :faq-search]]]))
 
 (defn route-for [route & [params]]
   (if params
@@ -53,7 +54,6 @@
       [:div#navbar-toggler {:class "collapse navbar-collapse"}
        (let [current-area (session/get-in [:route :current-route :data :area])]
          [:ul {:class "navbar-nav"}
-         ;; TODO change active based on route
           [:li.nav-item {:class (str (if (= :cards current-area) "active"))}
            [:a.nav-link {:href (path-for :card-list)} "Card List"]]
           [:li.nav-item {:class (str (if (= :faqs current-area) "active"))}
@@ -75,7 +75,9 @@
   (case route
     :card-list #'cards/cards-list-page
     :faq-list #'faqs/faq-list-page
-    :faq #'faqs/faq-page))
+    :faq #'faqs/faq-page
+    :faq-search #'faqs/faq-search-page
+    ""))
 
 ;; -------------------------
 ;; Page mounting component
