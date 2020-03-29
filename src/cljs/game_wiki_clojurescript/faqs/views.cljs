@@ -2,7 +2,8 @@
   (:require [reagent.core :as r]
             [reagent.session :as session]
             [re-frame.core :as rf]
-            [game-wiki-clojurescript.faqs.re-frame]))
+            [game-wiki-clojurescript.faqs.re-frame]
+            [game-wiki-clojurescript.routing :as routing]))
 
 (defn search []
   (fn []
@@ -48,6 +49,6 @@
    [:h2 (str "Results for " @(rf/subscribe [:faq-search-term]))]
    [:ol
     (for [{:keys [id title]} @(rf/subscribe [:faq-search-results])]
+      ^{:key id}
       [:li
-      ;;  [:a {:href (routing/path-for [:faq-page id])} title]])]])
-       ^{:key id} [:a {:href (str "/faq/" id)} title]])]])
+       [:a {:href (routing/path-for :faq {:faq-id id})} title]])]])

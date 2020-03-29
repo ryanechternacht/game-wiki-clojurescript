@@ -9,29 +9,8 @@
    [re-frame.core :as rf]
    [game-wiki-clojurescript.cards.views :as cards]
    [game-wiki-clojurescript.faqs.views :as faqs]
-   [game-wiki-clojurescript.re-frame]))
-
-;; -------------------------
-;; Routes
-(def router
-  (reitit/router
-   [["/" :index]
-    ["/cards" {:name :card-list :area :cards}]
-    ["/faqs" {:area :faqs}
-     ["" :faq-list]
-     ["/search/:search-term" :faq-search]]
-    ["/faq" {:area :faqs}
-     ["/:faq-id" :faq]]]))
-
-(defn route-for [route & [params]]
-  (if params
-    (reitit/match-by-name router route params)
-    (reitit/match-by-name router route)))
-
-(defn path-for [route & [params]]
-  (:path (if params
-           (route-for route params)
-           (route-for route))))
+   [game-wiki-clojurescript.re-frame]
+   [game-wiki-clojurescript.routing :as routing]))
 
 ;; -------------------------
 ;; Page components
@@ -56,29 +35,15 @@
        (let [current-area (session/get-in [:route :current-route :data :area])]
          [:ul {:class "navbar-nav"}
           [:li.nav-item {:class (str (if (= :cards current-area) "active"))}
-           [:a.nav-link {:href (path-for :card-list)} "Card List"]]
+           [:a.nav-link {:href (routing/path-for :card-list)} "Card List"]]
           [:li.nav-item {:class (str (if (= :faqs current-area) "active"))}
-           [:a.nav-link {:href (path-for :faq-list)} "FAQ"]]])]]]))
+           [:a.nav-link {:href (routing/path-for :faq-list)} "FAQ"]]])]]]))
 
 (defn the-footer []
   (fn []
     [:div.footer
      [:div.container
       [:span "Game Wiki © 2020"]]]))
-
-;; -------------------------
-;; Translate routes -> page components
-; Should these just be rolled into the router?
-; I guess this way gives you a level of indirection?
-; and the router technically exists w/o knowing anything of
-; our codebase
-(defn page-for [route]
-  (case route
-    :card-list cards/cards-list-page
-    :faq-list faqs/faq-list-page
-    :faq faqs/faq-page
-    :faq-search faqs/faq-search-page
-    ""))
 
 ;; -------------------------
 ;; Page mounting component
@@ -103,17 +68,17 @@
   (accountant/configure-navigation!
    {:nav-handler
     (fn [path]
-      (let [match (reitit/match-by-path router path)
+      (let [match (reitit/match-by-path routing/router path)
             current-page (:name (:data  match))
             route-params (:path-params match)]
         (r/after-render clerk/after-render!)
-        (session/put! :route {:current-page (page-for current-page)
-                              :current-route (route-for current-page)
+        (session/put! :route {:current-page (routing/page-for current-page)
+                              :current-route (routing/route-for current-page)
                               :route-params route-params})
         (clerk/navigate-page! path)))
     :path-exists?
     (fn [path]
-      (boolean (reitit/match-by-path router path)))})
+      (boolean (reitit/match-by-path routing/router path)))})
   (accountant/dispatch-current!)
   (rf/dispatch-sync [:initialize])
   (mount-root))
