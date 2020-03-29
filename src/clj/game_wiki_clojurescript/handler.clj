@@ -45,8 +45,8 @@
      ["/cards" {:get {:handler index-handler}}]
      ["/faqs"
       ["" {:get {:handler index-handler}}]
-      ["/:faq-id" {:get {:handler index-handler}}]
-      ["/search/:search-term" {:get {:handler index-handler}}]]])
+      ["/search/:search-term" {:get {:handler index-handler}}]]
+     ["/faq/:faq-id" {:get {:handler index-handler}}]])
    (reitit-ring/routes
     (reitit-ring/create-resource-handler {:path "/" :root "/public"})
     (reitit-ring/create-default-handler))

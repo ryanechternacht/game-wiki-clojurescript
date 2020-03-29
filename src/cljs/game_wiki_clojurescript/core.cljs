@@ -19,8 +19,9 @@
     ["/cards" {:name :card-list :area :cards}]
     ["/faqs" {:area :faqs}
      ["" :faq-list]
-     ["/:faq-id" :faq]
-     ["/search/:search-term" :faq-search]]]))
+     ["/search/:search-term" :faq-search]]
+    ["/faq" {:area :faqs}
+     ["/:faq-id" :faq]]]))
 
 (defn route-for [route & [params]]
   (if params
@@ -73,10 +74,10 @@
 ; our codebase
 (defn page-for [route]
   (case route
-    :card-list #'cards/cards-list-page
-    :faq-list #'faqs/faq-list-page
-    :faq #'faqs/faq-page
-    :faq-search #'faqs/faq-search-page
+    :card-list cards/cards-list-page
+    :faq-list faqs/faq-list-page
+    :faq faqs/faq-page
+    :faq-search faqs/faq-search-page
     ""))
 
 ;; -------------------------

@@ -39,7 +39,7 @@
   [:div
    [header]
    [:hr]
-   [:div "Hello World - I'm the FAQ page"]])
+   [:div "Hello World - I'm 1 faq"]])
 
 (defn faq-search-page []
   [:div
@@ -50,4 +50,4 @@
     (for [{:keys [id title]} @(rf/subscribe [:faq-search-results])]
       [:li
       ;;  [:a {:href (routing/path-for [:faq-page id])} title]])]])
-       ^{:key id} [:a {:href (str "/faqs/" id)} title]])]])
+       ^{:key id} [:a {:href (str "/faq/" id)} title]])]])
