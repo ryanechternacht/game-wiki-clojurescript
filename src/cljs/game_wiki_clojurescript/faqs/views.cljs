@@ -36,6 +36,15 @@
    [:hr]
    [:div "Hello World - I'm the FAQ page"]])
 
+;; (defn item-page []
+;;   (fn []
+;;     (let [routing-data (session/get :route)
+;;           item (get-in routing-data [:route-params :item-id])]
+;;       [:span.main
+;;        [:h1 (str "Item " item " of game-wiki-clojurescript")]
+;;        [:p [:a {:href (path-for :items)} "Back to the list of items"]]])))
+
+
 (defn faq-page []
   [:div
    [header]
