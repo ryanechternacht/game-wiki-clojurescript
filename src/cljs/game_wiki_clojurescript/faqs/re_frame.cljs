@@ -13,9 +13,8 @@
 
 (rf/reg-sub
  :faq-popular-tags
- (fn [_ _]
-   [(rf/subscribe [:faqs])])
- (fn [[faqs] _]
+ :<- [:faqs]
+ (fn [faqs _]
    (->> faqs
         (mapcat (fn [m] (:tags m)))
         (reduce #(assoc %1 %2 (inc (get %1 %2 0))) {})
@@ -33,3 +32,11 @@
                      (str/includes? (:body % "") search-term)
                      (some (fn [t] (str/includes? t search-term)) (:tags % []))))
         (map #(select-keys % [:title :id])))))
+
+(rf/reg-sub
+ :faq
+ :<- [:faqs]
+ (fn [faqs [_ id]]
+   (->> faqs
+        (filter #(= (:id %) id))
+        first)))

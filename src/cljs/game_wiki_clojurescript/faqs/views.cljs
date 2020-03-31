@@ -1,5 +1,6 @@
 (ns game-wiki-clojurescript.faqs.views
-  (:require [reagent.core :as r]
+  (:require [clojure.edn :as edn]
+            [reagent.core :as r]
             [reagent.session :as session]
             [re-frame.core :as rf]
             [game-wiki-clojurescript.faqs.re-frame]
@@ -46,11 +47,29 @@
    [:hr]
    [:div "Hello World - I'm the FAQ page"]])
 
+;; not quite sure why it doesn't inherit the color from style, but w/e
+(defn pencil-icon []
+  [:svg.bi.bi-pencil {:width "1em" :height "1em" :view-box "0 0 20 20" :xmlns "http://www.w3.org/2000/svg"}
+   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M11.293 1.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.39.242l-3 1a1 1 0 01-1.266-1.265l1-3a1 1 0 01.242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"}]
+   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 00.5.5H4v.5a.5.5 0 00.5.5H5v.5a.5.5 0 00.5.5H6v-1.5a.5.5 0 00-.5-.5H5v-.5a.5.5 0 00-.5-.5H3z"}]])
+
 (defn faq-page []
-  [:div
-   [header]
-   [:hr]
-   [:div "Hello World - I'm 1 faq"]])
+  (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
+        faq @(rf/subscribe [:faq faq-id])]
+    [:div
+     [header]
+     [:hr]
+     [:div.float-right
+      ;; TODO implement
+      [:button.btn.btn-outline-primary
+       [pencil-icon]]]
+     [:h2 (:title faq)]
+     [:h4 "Tags"]
+     [:ul
+      (for [tag (:tags faq)]
+        ^{:key tag} [:li tag])]
+     [:h4 "Body"]
+     [:span {:dangerouslySetInnerHTML {:__html (:body faq)}}]]))
 
 (defn faq-search-page []
   (let [search-term (session/get-in [:route :route-params :search-term])]

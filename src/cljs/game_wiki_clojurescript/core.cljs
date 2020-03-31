@@ -46,7 +46,8 @@
         (clerk/navigate-page! path)))
     :path-exists?
     (fn [path]
-      (boolean (reitit/match-by-path routing/router path)))})
+      (boolean (reitit/match-by-path routing/router path)))
+    :reload-same-path? true})
   (accountant/dispatch-current!)
   (rf/dispatch-sync [:initialize])
   (mount-root))
