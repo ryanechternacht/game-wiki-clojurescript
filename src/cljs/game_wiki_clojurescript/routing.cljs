@@ -1,5 +1,6 @@
 (ns game-wiki-clojurescript.routing
   (:require [reitit.frontend :as reitit]
+            [accountant.core :as accountant]
             [game-wiki-clojurescript.cards.views :as cards]
             [game-wiki-clojurescript.faqs.views :as faqs]))
 
@@ -16,14 +17,10 @@
      ["/:faq-id" :faq]]]))
 
 (defn route-for [route & [params]]
-  (if params
-    (reitit/match-by-name router route params)
-    (reitit/match-by-name router route)))
+  (reitit/match-by-name router route params))
 
 (defn path-for [route & [params]]
-  (:path (if params
-           (route-for route params)
-           (route-for route))))
+  (:path (route-for route params)))
 
 ;; -------------------------
 ;; Translate routes -> page components
@@ -39,3 +36,7 @@
     :faq #'faqs/faq-page
     :faq-search #'faqs/faq-search-page
     ""))
+
+(defn navigate!
+  ([route] (navigate! route {}))
+  ([route params] (accountant/navigate! (path-for route params))))

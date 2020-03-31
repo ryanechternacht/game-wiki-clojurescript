@@ -18,7 +18,7 @@
 
 (defn current-page []
   (fn []
-    (let [page (:current-page (session/get :route))]
+    (let [page (session/get-in [:route :current-page])]
       [:div
        [layout/the-header]
        [:div {:class "main-view container"}

@@ -5,19 +5,27 @@
             [game-wiki-clojurescript.faqs.re-frame]
             [game-wiki-clojurescript.routing :as routing]))
 
+;; Helper funcs 
+; Gets value of js event (for use in :on-change, etc.)
+(def get-event-value #(-> % .-target .-value))
+
 (defn search []
-  (fn []
-    [:form.form-inline
-     [:input.mr-4.form-control {:placeholder "search"}]
-     ;; TODO search
-     [:button.btn.btn-primary {:type "button"} "Search"]]))
+  (let [search-term (session/get-in [:route :route-params :search-term])
+        val (r/atom search-term)]
+    (fn []
+      [:form.form-inline
+       [:div
+        [:input.mr-4.form-control {:placeholder "search" :default-value @val
+                                   :on-change #(reset! val (get-event-value %))}]]
+       [:button.btn.btn-primary {:type "button"
+                                 :on-click #(routing/navigate! :faq-search {:search-term @val})}
+        "Search"]])))
 
 (defn popular-tags []
   [:div.inline.small
    [:span.label "Popular Tags: "]
    (for [tag @(rf/subscribe [:faq-popular-tags])]
-       ;;TODO routing
-     ^{:key tag} [:a.ml-2 {:href "#"} tag])])
+     ^{:key tag} [:a.ml-2 {:href (routing/path-for :faq-search {:search-term tag})} tag])])
 
 ; TODO figure out how to make this use child routes so the
 ; header isn't constantly being redrawn
@@ -35,15 +43,6 @@
    [header]
    [:hr]
    [:div "Hello World - I'm the FAQ page"]])
-
-;; (defn item-page []
-;;   (fn []
-;;     (let [routing-data (session/get :route)
-;;           item (get-in routing-data [:route-params :item-id])]
-;;       [:span.main
-;;        [:h1 (str "Item " item " of game-wiki-clojurescript")]
-;;        [:p [:a {:href (path-for :items)} "Back to the list of items"]]])))
-
 
 (defn faq-page []
   [:div
