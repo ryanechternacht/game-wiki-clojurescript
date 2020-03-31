@@ -13,13 +13,13 @@
   (let [search-term (session/get-in [:route :route-params :search-term])
         val (r/atom search-term)]
     (fn []
-      [:form.form-inline
+      [:form.form-inline {:on-submit (fn [e]
+                                       (.preventDefault e)
+                                       (routing/navigate! :faq-search {:search-term @val}))}
        [:div
         [:input.mr-4.form-control {:placeholder "search" :default-value @val
                                    :on-change #(reset! val (get-event-value %))}]]
-       [:button.btn.btn-primary {:type "button"
-                                 :on-click #(routing/navigate! :faq-search {:search-term @val})}
-        "Search"]])))
+       [:button.btn.btn-primary "Search"]])))
 
 (defn popular-tags []
   [:div.inline.small
