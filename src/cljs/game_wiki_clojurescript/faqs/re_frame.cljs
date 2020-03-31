@@ -1,5 +1,6 @@
 (ns game-wiki-clojurescript.faqs.re-frame
-  (:require [reagent.core :as r]
+  (:require [clojure.string :as str]
+            [reagent.core :as r]
             [re-frame.core :as rf]))
 
 ;; Events
@@ -12,7 +13,7 @@
 
 (rf/reg-sub
  :faq-popular-tags
- (fn [query-v _]
+ (fn [_ _]
    [(rf/subscribe [:faqs])])
  (fn [[faqs] _]
    (->> faqs
@@ -24,11 +25,11 @@
         (map first))))
 
 (rf/reg-sub
- :faq-search-term
- (fn [db _]
-   (get-in db [:faqs :search-term])))
-
-(rf/reg-sub
  :faq-search-results
- (fn [db _]
-   (get-in db [:faqs :search-results])))
+ :<- [:faqs]
+ (fn [faqs [_ search-term]]
+   (->> faqs
+        (filter #(or (str/includes? (:title % "") search-term)
+                     (str/includes? (:body % "") search-term)
+                     (some (fn [t] (str/includes? t search-term)) (:tags % []))))
+        (map #(select-keys % [:title :id])))))

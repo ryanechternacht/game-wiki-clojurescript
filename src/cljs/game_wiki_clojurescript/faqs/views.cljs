@@ -9,6 +9,8 @@
 ; Gets value of js event (for use in :on-change, etc.)
 (def get-event-value #(-> % .-target .-value))
 
+;; TODO clicking on popular tags doesn't cause this to update
+;; the input
 (defn search []
   (let [search-term (session/get-in [:route :route-params :search-term])
         val (r/atom search-term)]
@@ -51,12 +53,13 @@
    [:div "Hello World - I'm 1 faq"]])
 
 (defn faq-search-page []
-  [:div
-   [header]
-   [:hr]
-   [:h2 (str "Results for " @(rf/subscribe [:faq-search-term]))]
-   [:ol
-    (for [{:keys [id title]} @(rf/subscribe [:faq-search-results])]
-      ^{:key id}
-      [:li
-       [:a {:href (routing/path-for :faq {:faq-id id})} title]])]])
+  (let [search-term (session/get-in [:route :route-params :search-term])]
+    [:div
+     [header]
+     [:hr]
+     [:h2 (str "Results for " search-term)]
+     [:ol
+      (for [{:keys [id title]} @(rf/subscribe [:faq-search-results search-term])]
+        ^{:key id}
+        [:li
+         [:a {:href (routing/path-for :faq {:faq-id id})} title]])]]))
