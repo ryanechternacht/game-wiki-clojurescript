@@ -17,8 +17,9 @@
         val (r/atom search-term)]
     (fn []
       [:form.form-inline {:on-submit (fn [e]
-                                       (.preventDefault e)
-                                       (routing/navigate! :faq-search {:search-term @val}))}
+                                       (do
+                                         (.preventDefault e)
+                                         (routing/navigate! :faq-search {:search-term @val})))}
        [:div
         [:input.mr-4.form-control {:placeholder "search" :default-value @val
                                    :on-change #(reset! val (get-event-value %))}]]
@@ -84,40 +85,29 @@
      [:h4 "Body"]
      [:span {:dangerouslySetInnerHTML {:__html (:body faq)}}]]))
 
-    ;; <b-form-group label-for="tags" label="Tags">
-    ;;   <b-form-tags id="tags" v-model="faq.tags" class="mb-2" remove-on-delete />
-    ;; </b-form-group>
-
-    ;; <b-form-group label-for="body" label="Body">
-    ;;   <editor
-    ;;     v-model="faq.body"
-    ;;     api-key="2htrrda1ywukt91mvkpsd7m0j884up00dz8u5jrllk8cf325"
-    ;;     id="body"
-    ;;     :init="{
-    ;;       height: 500,
-    ;;       menubar: false,
-    ;;       plugins: [
-    ;;         'advlist autolink lists link image charmap',
-    ;;         'searchreplace visualblocks code fullscreen',
-    ;;         'print preview anchor insertdatetime media',
-    ;;         'paste code help wordcount table'
-    ;;       ],
-    ;;       toolbar:
-    ;;         `undo redo | formatselect | bold italic |
-    ;;         alignleft aligncenter alignright |
-    ;;         bullist numlist outdent indent | help`
-    ;;     }"
-    ;;   />
-    ;; </b-form-group>
-
-    ;; <b-button class="mt-4" @click="save" variant="primary">Save</b-button>
 (defn faq-edit-page []
-  [:div
-   [header]
-   [:hr]
-   [:div.form-group
-    [:label {:for "title"} "Title"]
-    [:input#title.form-control]]
-   [:div.form-group
-    [:label {:for "tags"} "Tags"]
-    [:input#tags.form-control]]])
+  (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
+        faq @(rf/subscribe [:faq faq-id])]
+    ;; TODO 
+    [:div
+     [header]
+     [:hr]
+  ;; TODO should wait for save confirmation before going back
+     [:form {:on-submit (fn [e]
+                          (do
+                            (.preventDefault e)
+                            ;; TODO REFRAME
+                            (routing/navigate! :faq-view {:faq-id faq-id})))}
+      [:div.form-group
+       [:label {:for "title"} "Title"]
+       [:input#title.form-control {:default-value (:title faq)}]]
+   ;;TODO we don't have the fancy tags component for this
+      [:div.form-group
+       [:label {:for "tags"} "Tags"]
+      ;; TODO stylize
+       [:input#tags.form-control {:default-value (str (:tags faq))}]]
+   ;;TODO This should be tinymce
+      [:div.form-group
+       [:label {:for "body"} "Body"]
+       [:textarea#body.form-control {:default-value (:body faq)}]]
+      [:button.btn.btn-primary.mt-4 "Save"]]]))
