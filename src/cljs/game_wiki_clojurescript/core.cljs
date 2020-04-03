@@ -26,6 +26,22 @@
        [layout/the-footer]])))
 
 ;; -------------------------
+;; Translate routes -> page components
+; I tried to put this in the routing file, but it creates
+; circular dependencies (it requires the view files, and the
+; view files require routing). This could probably be solved with
+; some dynamic variables, but that was outside what I wanted to 
+; figure out
+(defn page-for [route]
+  (case route
+    :card-list #'cards/cards-list-page
+    :faq-list #'faqs/faq-list-page
+    :faq-view #'faqs/faq-view-page
+    :faq-edit #'faqs/faq-edit-page
+    :faq-search #'faqs/faq-search-page
+    (str "Unknown route " route)))
+
+;; -------------------------
 ;; Initialize app
 
 (defn mount-root []
@@ -40,7 +56,7 @@
             current-page (:name (:data  match))
             route-params (:path-params match)]
         (r/after-render clerk/after-render!)
-        (session/put! :route {:current-page (routing/page-for current-page)
+        (session/put! :route {:current-page (page-for current-page)
                               :current-route (routing/route-for current-page)
                               :route-params route-params})
         (clerk/navigate-page! path)))

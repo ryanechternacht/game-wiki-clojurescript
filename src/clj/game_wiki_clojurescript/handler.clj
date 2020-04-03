@@ -18,6 +18,7 @@
            :content "width=device-width, initial-scale=1"}]
    (include-css (if (env :dev) "/css/site.css" "/css/site.min.css"))
    ;; Bootstrap
+   ;; TODO pull these from somewhere more reasonable (npm?)
    (include-js "https://code.jquery.com/jquery-3.4.1.slim.min.js")
    (include-js "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js")
    (include-css "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css")
@@ -46,7 +47,10 @@
      ["/faqs"
       ["" {:get {:handler index-handler}}]
       ["/search/:search-term" {:get {:handler index-handler}}]]
-     ["/faq/:faq-id" {:get {:handler index-handler}}]])
+     ["/faq"
+      ["/:faq-id"
+       ["" {:get {:handler index-handler}}]
+       ["/edit" {:handler index-handler}]]]])
    (reitit-ring/routes
     (reitit-ring/create-resource-handler {:path "/" :root "/public"})
     (reitit-ring/create-default-handler))

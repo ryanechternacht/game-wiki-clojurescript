@@ -31,7 +31,7 @@
      ^{:key tag} [:a.ml-2 {:href (routing/path-for :faq-search {:search-term tag})} tag])])
 
 ; TODO figure out how to make this use child routes so the
-; header isn't constantly being redrawn
+; header doesn't need to be specified in every component
 (defn header []
   [:div
    [:div.float-right
@@ -47,30 +47,6 @@
    [:hr]
    [:div "Hello World - I'm the FAQ page"]])
 
-;; not quite sure why it doesn't inherit the color from style, but w/e
-(defn pencil-icon []
-  [:svg.bi.bi-pencil {:width "1em" :height "1em" :view-box "0 0 20 20" :xmlns "http://www.w3.org/2000/svg"}
-   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M11.293 1.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.39.242l-3 1a1 1 0 01-1.266-1.265l1-3a1 1 0 01.242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"}]
-   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 00.5.5H4v.5a.5.5 0 00.5.5H5v.5a.5.5 0 00.5.5H6v-1.5a.5.5 0 00-.5-.5H5v-.5a.5.5 0 00-.5-.5H3z"}]])
-
-(defn faq-page []
-  (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
-        faq @(rf/subscribe [:faq faq-id])]
-    [:div
-     [header]
-     [:hr]
-     [:div.float-right
-      ;; TODO implement
-      [:button.btn.btn-outline-primary
-       [pencil-icon]]]
-     [:h2 (:title faq)]
-     [:h4 "Tags"]
-     [:ul
-      (for [tag (:tags faq)]
-        ^{:key tag} [:li tag])]
-     [:h4 "Body"]
-     [:span {:dangerouslySetInnerHTML {:__html (:body faq)}}]]))
-
 (defn faq-search-page []
   (let [search-term (session/get-in [:route :route-params :search-term])]
     [:div
@@ -81,4 +57,67 @@
       (for [{:keys [id title]} @(rf/subscribe [:faq-search-results search-term])]
         ^{:key id}
         [:li
-         [:a {:href (routing/path-for :faq {:faq-id id})} title]])]]))
+         [:a {:href (routing/path-for :faq-view {:faq-id id})} title]])]]))
+
+
+;; not quite sure why it doesn't inherit the color from style, but w/e
+(defn pencil-icon []
+  [:svg.bi.bi-pencil {:width "1em" :height "1em" :view-box "0 0 20 20" :xmlns "http://www.w3.org/2000/svg"}
+   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M11.293 1.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.39.242l-3 1a1 1 0 01-1.266-1.265l1-3a1 1 0 01.242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"}]
+   [:path {:fill-rule "evenodd" :clip-rule "evenodd" :d "M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 00.5.5H4v.5a.5.5 0 00.5.5H5v.5a.5.5 0 00.5.5H6v-1.5a.5.5 0 00-.5-.5H5v-.5a.5.5 0 00-.5-.5H3z"}]])
+
+(defn faq-view-page []
+  (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
+        faq @(rf/subscribe [:faq faq-id])]
+    [:div
+     [header]
+     [:hr]
+     [:div.float-right
+      ;; TODO implement
+      [:a.btn.btn-outline-primary {:href (routing/path-for :faq-edit {:faq-id faq-id})}
+       [pencil-icon]]]
+     [:h2 (:title faq)]
+     [:h4 "Tags"]
+     [:ul
+      (for [tag (:tags faq)]
+        ^{:key tag} [:li tag])]
+     [:h4 "Body"]
+     [:span {:dangerouslySetInnerHTML {:__html (:body faq)}}]]))
+
+    ;; <b-form-group label-for="tags" label="Tags">
+    ;;   <b-form-tags id="tags" v-model="faq.tags" class="mb-2" remove-on-delete />
+    ;; </b-form-group>
+
+    ;; <b-form-group label-for="body" label="Body">
+    ;;   <editor
+    ;;     v-model="faq.body"
+    ;;     api-key="2htrrda1ywukt91mvkpsd7m0j884up00dz8u5jrllk8cf325"
+    ;;     id="body"
+    ;;     :init="{
+    ;;       height: 500,
+    ;;       menubar: false,
+    ;;       plugins: [
+    ;;         'advlist autolink lists link image charmap',
+    ;;         'searchreplace visualblocks code fullscreen',
+    ;;         'print preview anchor insertdatetime media',
+    ;;         'paste code help wordcount table'
+    ;;       ],
+    ;;       toolbar:
+    ;;         `undo redo | formatselect | bold italic |
+    ;;         alignleft aligncenter alignright |
+    ;;         bullist numlist outdent indent | help`
+    ;;     }"
+    ;;   />
+    ;; </b-form-group>
+
+    ;; <b-button class="mt-4" @click="save" variant="primary">Save</b-button>
+(defn faq-edit-page []
+  [:div
+   [header]
+   [:hr]
+   [:div.form-group
+    [:label {:for "title"} "Title"]
+    [:input#title.form-control]]
+   [:div.form-group
+    [:label {:for "tags"} "Tags"]
+    [:input#tags.form-control]]])
