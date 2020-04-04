@@ -1,5 +1,6 @@
 (ns game-wiki-clojurescript.faqs.views
   (:require [clojure.edn :as edn]
+            [clojure.string :as str]
             [reagent.core :as r]
             [reagent.session :as session]
             [re-frame.core :as rf]
@@ -85,6 +86,9 @@
      [:h4 "Body"]
      [:span {:dangerouslySetInnerHTML {:__html (:body faq)}}]]))
 
+(defn- convert-tags-to-vec [tags]
+  (str/split tags #"[\s,]+"))
+
 (defn faq-edit-page []
   (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
         form (r/atom @(rf/subscribe [:faq faq-id]))]
@@ -96,7 +100,6 @@
        [:form {:on-submit (fn [e]
                             (do
                               (.preventDefault e)
-                            ;; TODO REFRAME
                               (rf/dispatch [:save-faq @form])
                               (routing/navigate! :faq-view {:faq-id faq-id})))}
         [:div.form-group
@@ -106,9 +109,10 @@
    ;;TODO we don't have the fancy tags component for this
         [:div.form-group
          [:label {:for "tags"} "Tags"]
-         ;;TODO need to change how we save this
-         [:input#tags.form-control {:default-value (str (:tags @form))
-                                    :on-change (fn [e] (swap! form #(assoc % :tags (get-event-value e))))}]]
+         [:input#tags.form-control {:default-value (str/join ", " (:tags @form))
+                                    :on-blur (fn [e] (swap! form #(assoc % :tags (->> e
+                                                                                      get-event-value
+                                                                                      convert-tags-to-vec))))}]]
    ;;TODO This should be tinymce
         [:div.form-group
          [:label {:for "body"} "Body"]

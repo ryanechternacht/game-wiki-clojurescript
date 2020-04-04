@@ -6,7 +6,7 @@
 ;; Events
 (rf/reg-event-db
  :save-faq
- [(rf/path [:faqs :faq-list])]
+ :<- [:faqs]
  (fn [faqs [_ faq]]
    (assoc faqs (:id faq) faq)))
 
@@ -14,14 +14,13 @@
 (rf/reg-sub
  :faqs
  (fn [db _]
-   (get-in db [:faqs :faq-list])))
+   (vals (get-in db [:faqs :faq-list]))))
 
 (rf/reg-sub
  :faq-popular-tags
  :<- [:faqs]
  (fn [faqs _]
    (->> faqs
-        vals
         (mapcat (fn [m] (:tags m)))
         (reduce #(assoc %1 %2 (inc (get %1 %2 0))) {})
         (filter #(> (second %) 1))
@@ -34,7 +33,6 @@
  :<- [:faqs]
  (fn [faqs [_ search-term]]
    (->> faqs
-        vals
         (filter #(or (str/includes? (:title % "") search-term)
                      (str/includes? (:body % "") search-term)
                      (some (fn [t] (str/includes? t search-term)) (:tags % []))))
@@ -45,6 +43,5 @@
  :<- [:faqs]
  (fn [faqs [_ id]]
    (->> faqs
-        vals
         (filter #(= (:id %) id))
         first)))
