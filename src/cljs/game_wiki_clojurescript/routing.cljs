@@ -11,6 +11,7 @@
     ["/cards" {:name :card-list :area :cards}]
     ["/faqs" {:area :faqs}
      ["" :faq-list]
+     ["/new" :faq-new]
      ["/search/:search-term" :faq-search]]
     ["/faq" {:area :faqs}
     ;;  TODO get these nested

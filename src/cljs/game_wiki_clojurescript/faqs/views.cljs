@@ -38,7 +38,7 @@
   [:div
    [:div.float-right
       ;; TODO hookup
-    [:button.btn.btn-outline-primary "New Entry"]]
+    [:a.btn.btn-outline-primary {:href (routing/path-for :faq-new)} "New Entry"]]
    [search]
    [:div.mt-2
     [popular-tags]]])

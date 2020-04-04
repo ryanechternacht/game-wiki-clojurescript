@@ -6,9 +6,12 @@
 ;; Events
 (rf/reg-event-db
  :save-faq
- :<- [:faqs]
+ [(rf/path [:faqs :faq-list])]
  (fn [faqs [_ faq]]
-   (assoc faqs (:id faq) faq)))
+   (if (:id faq)
+     (assoc faqs (:id faq) faq)
+     (let [id (reduce > 1 (map :id (vals faqs)))]
+       (assoc faqs id (assoc faq :id id))))))
 
 ;; Subscriptions
 (rf/reg-sub

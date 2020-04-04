@@ -38,6 +38,7 @@
     :faq-list #'faqs/faq-list-page
     :faq-view #'faqs/faq-view-page
     :faq-edit #'faqs/faq-edit-page
+    :faq-new #'faqs/faq-edit-page
     :faq-search #'faqs/faq-search-page
     (str "Unknown route " route)))
 
