@@ -87,27 +87,32 @@
 
 (defn faq-edit-page []
   (let [faq-id (edn/read-string (session/get-in [:route :route-params :faq-id]))
-        faq @(rf/subscribe [:faq faq-id])]
-    ;; TODO 
-    [:div
-     [header]
-     [:hr]
+        form (r/atom @(rf/subscribe [:faq faq-id]))]
+    (fn []
+      [:div
+       [header]
+       [:hr]
   ;; TODO should wait for save confirmation before going back
-     [:form {:on-submit (fn [e]
-                          (do
-                            (.preventDefault e)
+       [:form {:on-submit (fn [e]
+                            (do
+                              (.preventDefault e)
                             ;; TODO REFRAME
-                            (routing/navigate! :faq-view {:faq-id faq-id})))}
-      [:div.form-group
-       [:label {:for "title"} "Title"]
-       [:input#title.form-control {:default-value (:title faq)}]]
+                              (rf/dispatch [:save-faq @form])
+                              (routing/navigate! :faq-view {:faq-id faq-id})))}
+        [:div.form-group
+         [:label {:for "title"} "Title"]
+         [:input#title.form-control {:default-value (:title @form)
+                                     :on-change (fn [e] (swap! form #(assoc % :title (get-event-value e))))}]]
    ;;TODO we don't have the fancy tags component for this
-      [:div.form-group
-       [:label {:for "tags"} "Tags"]
-      ;; TODO stylize
-       [:input#tags.form-control {:default-value (str (:tags faq))}]]
+        [:div.form-group
+         [:label {:for "tags"} "Tags"]
+         ;;TODO need to change how we save this
+         [:input#tags.form-control {:default-value (str (:tags @form))
+                                    :on-change (fn [e] (swap! form #(assoc % :tags (get-event-value e))))}]]
    ;;TODO This should be tinymce
-      [:div.form-group
-       [:label {:for "body"} "Body"]
-       [:textarea#body.form-control {:default-value (:body faq)}]]
-      [:button.btn.btn-primary.mt-4 "Save"]]]))
+        [:div.form-group
+         [:label {:for "body"} "Body"]
+         [:textarea#body.form-control {:default-value (:body @form)
+                                       :on-change (fn [e] (swap! form #(assoc % :body (get-event-value e))))}]]
+        [:div {} @form]
+        [:button.btn.btn-primary.mt-4 "Save"]]])))

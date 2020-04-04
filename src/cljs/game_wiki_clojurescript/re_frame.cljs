@@ -105,22 +105,22 @@
                                       :description "Building Tag"}
                       :action {:description "Is an Action"
                                :type "action"}}}
-    :faqs {:faq-list [{:id 1
-                       :title "How many actions can I take in a generation?"
-                       :body "<p>As many as you want. You keep taking turns until you pass a turn without taking any actions.</p>"
-                       :tags ["general"]}
-                      {:id 2
-                       :title "What are the best expansions?"
-                       :body "<ol><li>Prelude</li><li>Colonies</li><li>Turmoil</li><li>Venus</li></ol>"
-                       :tags ["general"]}
-                      {:id 3
-                       :title "Is a chairman part of a party?"
-                       :body "<p>Who can know?</p>"
-                       :tags ["turmoil" "chairman" "party"]}
-                      {:id 4
-                       :title "Can I use a <?> tag during a new government bonus"
-                       :body "<p>No. You can only use <?> tags while taking an action</p>"
-                       :tags ["turmoil" "?-tag" "general"]}]
+    :faqs {:faq-list {1 {:id 1
+                         :title "How many actions can I take in a generation?"
+                         :body "<p>As many as you want. You keep taking turns until you pass a turn without taking any actions.</p>"
+                         :tags ["general"]}
+                      2 {:id 2
+                         :title "What are the best expansions?"
+                         :body "<ol><li>Prelude</li><li>Colonies</li><li>Turmoil</li><li>Venus</li></ol>"
+                         :tags ["general"]}
+                      3 {:id 3
+                         :title "Is a chairman part of a party?"
+                         :body "<p>Who can know?</p>"
+                         :tags ["turmoil" "chairman" "party"]}
+                      4 {:id 4
+                         :title "Can I use a <?> tag during a new government bonus"
+                         :body "<p>No. You can only use <?> tags while taking an action</p>"
+                         :tags ["turmoil" "?-tag" "general"]}}
            :search-term ""
            :search-results [{:id 1 :title "hello"}
                             {:id 2 :title "world"}]}}))
