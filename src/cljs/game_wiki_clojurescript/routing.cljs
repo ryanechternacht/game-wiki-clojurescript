@@ -16,7 +16,9 @@
     ["/faq" {:area :faqs}
     ;;  TODO get these nested
      ["/:faq-id" :faq-view]
-     ["/:faq-id/edit" :faq-edit]]]))
+     ["/:faq-id/edit" :faq-edit]]
+    ["/d3" {:area :d3}
+     ["" :d3-overview]]]))
 
 (defn route-for [route & [params]]
   (reitit/match-by-name router route params))
