@@ -41,7 +41,9 @@
     :faq-edit #'faqs/faq-edit-page
     :faq-new #'faqs/faq-edit-page
     :faq-search #'faqs/faq-search-page
-    :d3-overview #'d3/d3-overview-page
+    :d3-overview #'d3/overview-page
+    :d3-bar-chart #'d3/bar-chart-page
+    :d3-line-chart #'d3/line-chart-page
     (str "Unknown route " route)))
 
 ;; -------------------------

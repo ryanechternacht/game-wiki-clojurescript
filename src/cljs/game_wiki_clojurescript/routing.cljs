@@ -18,7 +18,9 @@
      ["/:faq-id" :faq-view]
      ["/:faq-id/edit" :faq-edit]]
     ["/d3" {:area :d3}
-     ["" :d3-overview]]]))
+     ["" :d3-overview]
+     ["/bar-chart" :d3-bar-chart]
+     ["/line-chart" :d3-line-chart]]]))
 
 (defn route-for [route & [params]]
   (reitit/match-by-name router route params))

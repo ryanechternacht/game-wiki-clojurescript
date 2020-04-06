@@ -51,7 +51,10 @@
       ["/:faq-id"
        ["" {:get {:handler index-handler}}]
        ["/edit" {:handler index-handler}]]]
-     ["/d3" {:get {:handler index-handler}}]])
+     ["/d3"
+      ["" {:get {:handler index-handler}}]
+      ["/bar-chart" {:get {:handler index-handler}}]
+      ["line-chart" {:get {:handler index-handler}}]]])
    (reitit-ring/routes
     (reitit-ring/create-resource-handler {:path "/" :root "/public"})
     (reitit-ring/create-default-handler))
