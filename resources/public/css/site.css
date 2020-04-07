@@ -47,3 +47,12 @@
   color: #444;
   font-style: italic;
 }
+
+.tetherball-line {
+  stroke: #666;
+}
+
+.tetherball-label {
+  font-size: 10px;
+  fill: #666;
+}

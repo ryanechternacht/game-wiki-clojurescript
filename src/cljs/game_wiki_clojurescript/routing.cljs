@@ -20,7 +20,8 @@
     ["/d3" {:area :d3}
      ["" :d3-overview]
      ["/bar-chart" :d3-bar-chart]
-     ["/line-chart" :d3-line-chart]]]))
+     ["/line-chart" :d3-line-chart]
+     ["/tetherball-chart" :d3-tetherball-chart]]]))
 
 (defn route-for [route & [params]]
   (reitit/match-by-name router route params))
