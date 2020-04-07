@@ -48,11 +48,31 @@
   font-style: italic;
 }
 
+/* tetherball graph */
 .tetherball-line {
-  stroke: #666;
+  stroke: #aaa;
 }
 
 .tetherball-label {
   font-size: 10px;
-  fill: #666;
+  fill: #888;
+}
+
+.target-line {
+  stroke: black;
+}
+
+.target-label {
+  fill: black;
+  font-size: 10px;
+}
+
+.value-score {
+  fill: black;
+  font-size: 16px;
+}
+
+.value-label {
+  fill: black;
+  font-size: 10px;
 }
