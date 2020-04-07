@@ -102,9 +102,9 @@
                   (rid3-> node
                           (.datum (prepare-dataset ratom))
                           {:d (-> (.line js/d3)
-                                  (.x #(+ (x-scale (. % -label))
+                                  (.x #(+ (x-scale (.-label %))
                                           (/ (.bandwidth x-scale) 2)))
-                                  (.y #(y-scale (. % -value))))
+                                  (.y #(y-scale (.-value %))))
                            :stroke (get-in @ratom [:chart :line-color])
                            :stroke-width 1.5
                            :fill "none"})))}
