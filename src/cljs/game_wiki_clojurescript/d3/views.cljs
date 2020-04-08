@@ -51,15 +51,15 @@
                                  :target 230})
 (def tetherball-chart-1 {:title "My Tetherball Chart"
                          :width 500
-                         :height 100
+                         :height 260
                          :id "tetherball-graph-1"})
 (def tetherball-chart-2 {:title "My Tetherball Chart"
                          :width 500
-                         :height 100
+                         :height 260
                          :id "tetherball-graph-2"})
 (def tetherball-chart-3 {:title "My Tetherball Chart"
                          :width 500
-                         :height 100
+                         :height 260
                          :id "tetherball-graph-3"})
 
 (defn tetherball-chart-page []
@@ -69,12 +69,14 @@
                         :chart tetherball-chart-1})]
      [:div
       [:span "Min 200 | Target 230 | Value 240 | Max 250"]
-      [tetherball/tetherball-chart {:ratom ratom}]])
+      [tetherball/tetherball-chart {:ratom ratom}]
+      [:hr]])
    (let [ratom (r/atom {:dataset tetherball-chart-dataset-2
                         :chart tetherball-chart-2})]
      [:div
       [:span "Min 200 | Value 220 | Target 230 | Max 250"]
-      [tetherball/tetherball-chart {:ratom ratom}]])
+      [tetherball/tetherball-chart {:ratom ratom}]
+      [:hr]])
    (let [ratom (r/atom {:dataset tetherball-chart-dataset-3
                         :chart tetherball-chart-3})]
      [:div

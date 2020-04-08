@@ -5,11 +5,14 @@
             [goog.string :as gstr]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Chart Params
-(def margin {:top 10
-             :bottom 10
+;; Chart Constants
+(def margin {:top 24
+             :bottom 24
              :left 36
              :right 36})
+
+(def value-marker {:circle-radius 40
+                   :checkbox-size 14})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
@@ -23,20 +26,6 @@
       :dataset
       clj->js))
 
-;;TODO get back to this instead of css?
-;; (def grey-line "#aaa")
-;; (def grey-text "#666")
-;; (defn lighten-axis [node]
-;;   (rid3-> node
-;;           (.select "path")
-;;           {:style {:stroke grey-line}})
-;;   (rid3-> node
-;;           (.selectAll ".tick text")
-;;           {:style {:fill grey-text}})
-;;   (rid3-> node
-;;           (.selectAll ".tick line")
-;;           {:style {:stroke grey-line}}))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Build chart components
 ;; All of these take ratom,
@@ -45,10 +34,12 @@
 ;; 3) should they only take the direct thing they need?
 (defn ->chart-area [ratom]
   (let [{chart :chart} @ratom]
-    {:x (:left margin)
-     :y (:top margin)
-     :width (- (:width chart) (:left margin) (:right margin))
-     :height (- (:height chart) (:top margin) (:bottom margin))}))
+    (let [height (- (:height chart) (:top margin) (:bottom margin))]
+      {:x (:left margin)
+       :y (:top margin)
+       :width (- (:width chart) (:left margin) (:right margin))
+       :height height
+       :middle-line (/ height 2)})))
 
 (defn ->x-scale [ratom]
   (let [{:keys [dataset]} @ratom
@@ -74,12 +65,12 @@
                          (rid3-> node
                                  {:transform (translate (:x chart-area) (:y chart-area))})))}
     :pieces [{:kind :elem
-              :class "tetherball-line"
+              :class "tetherball-axis-line"
               :tag "line"
               :did-mount
               (fn [node ratom]
                 (let [chart-area (->chart-area ratom)
-                      y (/ (:height chart-area) 2)
+                      y (:middle-line chart-area)
                       right (:width chart-area)]
                   (rid3-> node
                           {:x1 0 :x2 right :y1 y :y2 y
@@ -90,71 +81,83 @@
               :did-mount
               (fn [node ratom]
                 (let [chart-area (->chart-area ratom)
-                      y (/ (:height chart-area) 2)]
+                      y (:middle-line chart-area)]
                   (rid3-> node
                           {:transform (translate 0 y)})))
               :children [{:kind :elem
-                          :class "tetherball-line"
-                          :tag "line"
-                          :did-mount
-                          (fn [node ratom]
-                            (rid3-> node
-                                    {:x1 1 :x2 1 :y1 0 :y2 5
-                                     :stroke-width 2
-                                     :fill "none"}))}
-                         ;;TODO get these centered?
-                         {:kind :elem
-                          :class "tetherball-label"
+                          :class "tetherball-axis-label"
                           :tag "text"
                           :did-mount
                           (fn [node ratom]
                             (rid3-> node
-                                    {:y 16 :x -24}
-                                    (.text "Lowest Grade")))}
+                                    {:y 16}
+                                    (.text "Lowest")))}
                          {:kind :elem
-                          :class "tetherball-label"
+                          :class "tetherball-axis-label"
                           :tag "text"
                           :did-mount
                           (fn [node ratom]
                             (rid3-> node
-                                    {:y 28 :x -24}
-                                    (.text "Level Score")))}]}
+                                    {:y 28}
+                                    (.text "Grade")))}
+                         {:kind :elem
+                          :class "tetherball-axis-label"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (rid3-> node
+                                    {:y 40}
+                                    (.text "Level")))}
+                         {:kind :elem
+                          :class "tetherball-axis-label"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (rid3-> node
+                                    {:y 52}
+                                    (.text "Score")))}]}
+
              {:kind :container
               :class "right-axis"
               :did-mount
               (fn [node ratom]
                 (let [chart-area (->chart-area ratom)
-                      y (/ (:height chart-area) 2)
+                      y (:middle-line chart-area)
                       right (:width chart-area)]
                   (rid3-> node
                           {:transform (translate right y)})))
-              ;;TODO center or right align these?
               :children [{:kind :elem
-                          :class "tetherball-line"
-                          :tag "line"
-                          :did-mount
-                          (fn [node ratom]
-                            (rid3-> node
-                                    {:x1 -1 :x2 -1 :y1 0 :y2 5
-                                     :stroke-width 2
-                                     :fill "none"}))}
-                         ;;TODO get these centered?
-                         {:kind :elem
-                          :class "tetherball-label"
+                          :class "tetherball-axis-label"
                           :tag "text"
                           :did-mount
                           (fn [node ratom]
                             (rid3-> node
-                                    {:y 16 :x -30}
-                                    (.text "Highest Grade")))}
+                                    {:y 16}
+                                    (.text "Highest")))}
                          {:kind :elem
-                          :class "tetherball-label"
+                          :class "tetherball-axis-label"
                           :tag "text"
                           :did-mount
                           (fn [node ratom]
                             (rid3-> node
-                                    {:y 28 :x -30}
-                                    (.text "Level Score")))}]}
+                                    {:y 28}
+                                    (.text "Grade")))}
+                         {:kind :elem
+                          :class "tetherball-axis-label"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (rid3-> node
+                                    {:y 40}
+                                    (.text "Level")))}
+                         {:kind :elem
+                          :class "tetherball-axis-label"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (rid3-> node
+                                    {:y 52}
+                                    (.text "Score")))}]}
              {:kind :container
               :class "target"
               :did-mount
@@ -163,118 +166,71 @@
                   (rid3-> node
                           {:transform (translate x 0)})))
               :children [{:kind :elem
-                          :class "target-line"
+                          :class "tetherball-target-line"
                           :tag "line"
                           :did-mount
                           (fn [node ratom]
                             (let [height (:height (->chart-area ratom))]
                               (rid3-> node
                                       {:x1 0 :y1 0 :x2 0 :y2 height
-                                       :fill "none"
                                        :stroke-dasharray "8 4"})))}
-                         {:kind :container
-                          :class "target-box"
+                         {:kind :elem
+                          :class "tetherball-target-label"
+                          :tag "text"
                           :did-mount
                           (fn [node ratom]
-                            (let [middle-y (/ (:height (->chart-area ratom)) 2)
-                                  height 40
-                                  width 40]
+                            (let [dataset (:dataset @ratom)
+                                  target-met (> (:value dataset) (:target dataset))]
                               (rid3-> node
-                                      {:transform (translate (/ (- width) 2) (- middle-y (/ height 2)))})))
-                          :children [{:kind :elem
-                                      :class "target-background"
-                                      :tag "rect"
-                                      :did-mount
-                                      (fn [node ratom]
-                                        (let [height 40
-                                              width 40]
-                                          (rid3-> node
-                                                  {:height height
-                                                   :width width
-                                                   :fill "white"})))}
-                                     ;;TODO center text
-                                     {:kind :elem
-                                      :class "target-label"
-                                      :tag "text"
-                                      :did-mount
-                                      (fn [node ratom]
-                                        (rid3-> node
-                                                {:y 10
-                                                 :x 5}
-                                                (.text "Grade")))}
-                                     {:kind :elem
-                                      :class "target-label"
-                                      :tag "text"
-                                      :did-mount
-                                      (fn [node ratom]
-                                        (rid3-> node
-                                                {:y 23
-                                                 :x 5}
-                                                (.text "Level")))}
-                                     {:kind :elem
-                                      :class "target-label"
-                                      :tag "text"
-                                      :did-mount
-                                      (fn [node ratom]
-                                        (rid3-> node
-                                                {:y 36
-                                                 :x 5}
-                                                (.text "Norm")))}]}]}
+                                      {:y 12 :x (if target-met -5 5)
+                                       :class (when target-met "svg-align-right")}
+                                      (.text "Grade Level Norm"))))}]}
              {:kind :container
               :class "value"
               :did-mount
               (fn [node ratom]
-                (let [x ((->x-scale ratom) (get-in @ratom [:dataset :value]))]
+                (let [x ((->x-scale ratom) (get-in @ratom [:dataset :value]))
+                      y (:middle-line (->chart-area ratom))]
                   (rid3-> node
-                          {:transform (translate x 0)})))
+                          {:transform (translate x y)})))
               :children [{:kind :container
-                          :class "value-circle"
-                          :did-mount
-                          (fn [node ratom]
-                            (let [middle-y (/ (:height (->chart-area ratom)) 2)]
-                              (rid3-> node
-                                      {:transform (translate 0 middle-y)})))
+                          :class "tetherball-value-marker"
+                          :did-mount (fn [node ratom] node)
                           :children [{:kind :elem
-                                      :class "value-circle"
+                                      :class "tetherball-value-circle"
                                       :tag "circle"
                                       :did-mount
                                       (fn [node ratom]
                                         (rid3-> node
-                                                {:r 20
-                                                 :fill "white"
-                                                 :stroke "black"}))}
+                                                {:r (:circle-radius value-marker)}))}
                                      {:kind :elem
-                                      :class "value-score"
+                                      :class "tetherball-value-score"
                                       :tag "text"
                                       :did-mount
                                       (fn [node ratom]
                                         (rid3-> node
-                                                ;;TODO lot's of magic numbers here?
-                                                {:y 5
-                                                 :x -14}
                                                 (.text (get-in @ratom [:dataset :value]))))}]}
                          {:kind :container
                           :class "value-header"
                           :did-mount
                           (fn [node ratom]
-                            (let [middle-y (/ (:height (->chart-area ratom)) 2)
-                                  y (- middle-y 25)
-                                  x -20]
+                            (let [r (:circle-radius value-marker)
+                                  y (- 0 r 10)
+                                  x (- r)]
                               (rid3-> node
                                       {:transform (translate x y)})))
                           :children [{:kind :elem
-                                      :class "value-checkbox"
+                                      :class "tetherball-value-checkbox"
                                       :tag "rect"
                                       :did-mount
                                       (fn [node ratom]
-                                        (rid3-> node
-                                                {:fill "white"
-                                                 :stroke "black"
-                                                 :y -8
-                                                 :width 8
-                                                 :height 8}))}
+                                        (let [l (:checkbox-size value-marker)]
+                                          (rid3-> node
+                                                  {:y (- l)
+                                                   :width l
+                                                   :height l})))}
                                      {:kind :elem
-                                      :class "value-check"
+                                      :class "tetherball-value-check"
                                       :tag "path"
                                       :did-mount
                                       (fn [node ratom]
@@ -283,16 +239,14 @@
                                           (prn dataset)
                                           (prn render?)
                                           (when render?
+                                            ;;TODO this is really hardcoded
                                             (rid3-> node
-                                                    {:d "M 1 -6 l 2 4 l 6 -10"
-                                                     :stroke-width 2
-                                                     :stroke "green"
-                                                     :fill "none"}))))}
+                                                    {:d "M 2 -10 l 5 8 l 7 -20"}))))}
                                      {:kind :elem
-                                      :class "value-label"
+                                      :class "tetherball-value-label"
                                       :tag "text"
                                       :did-mount
                                       (fn [node ratom]
                                         (rid3-> node
-                                                {:x 12}
+                                                {:x (+ (:checkbox-size value-marker) 4)}
                                                 (.text "Goal Met")))}]}]}]}])

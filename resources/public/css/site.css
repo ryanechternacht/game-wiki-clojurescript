@@ -49,30 +49,57 @@
 }
 
 /* tetherball graph */
-.tetherball-line {
+.tetherball-axis-line {
   stroke: #aaa;
 }
 
-.tetherball-label {
+.tetherball-axis-label {
   font-size: 10px;
   fill: #888;
+  text-anchor: middle;
 }
 
-.target-line {
+.tetherball-target-line {
   stroke: black;
 }
 
-.target-label {
+.tetherball-target-label {
   fill: black;
   font-size: 10px;
 }
 
-.value-score {
+.tetherball-target-background {
+  fill: white;
+}
+
+.tetherball-value-score {
+  fill: black;
+  font-size: 24px;
+  text-anchor: middle;
+  dominant-baseline: central; /* svg prop */
+}
+
+.tetherball-value-label {
   fill: black;
   font-size: 16px;
 }
 
-.value-label {
-  fill: black;
-  font-size: 10px;
+.tetherball-value-circle {
+  fill: white;
+  stroke: black;
+}
+
+.svg-align-right {
+  text-anchor: end;
+}
+
+.tetherball-value-check {
+  stroke-width: 3px;
+  stroke: green;
+  fill: none;
+}
+
+.tetherball-value-checkbox {
+  fill: white;
+  stroke: black;
 }
