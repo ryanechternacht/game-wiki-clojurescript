@@ -76,7 +76,6 @@
   fill: black;
   font-size: 24px;
   text-anchor: middle;
-  dominant-baseline: central; /* svg prop */
 }
 
 .tetherball-value-label {
@@ -84,8 +83,12 @@
   font-size: 16px;
 }
 
-.tetherball-value-circle {
+.tetherball-value-label-backing {
   fill: white;
+}
+
+.tetherball-value-circle {
+  fill: #ddd;
   stroke: black;
 }
 

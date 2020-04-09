@@ -58,7 +58,12 @@
             (let [{chart :chart} @ratom]
               (rid3-> node
                       {:width (:width chart)
-                       :height (:height chart)})))}
+                       :height (:height chart)}
+                      (.append "defs")
+                      (.append "filter")
+                      {:id "shadow"}
+                      (.append "feDropShadow")
+                      {:dx 1 :dy 2 :stdDeviation 1})))}
     :main-container {:did-mount
                      (fn [node ratom]
                        (let [chart-area (->chart-area ratom)]
@@ -202,13 +207,15 @@
                                       :did-mount
                                       (fn [node ratom]
                                         (rid3-> node
-                                                {:r (:circle-radius value-marker)}))}
+                                                {:r (:circle-radius value-marker)
+                                                 :filter "url(#shadow)"}))}
                                      {:kind :elem
                                       :class "tetherball-value-score"
                                       :tag "text"
                                       :did-mount
                                       (fn [node ratom]
                                         (rid3-> node
+                                                {:dominant-baseline "central"}
                                                 (.text (get-in @ratom [:dataset :value]))))}]}
                          {:kind :container
                           :class "value-header"
@@ -220,6 +227,14 @@
                               (rid3-> node
                                       {:transform (translate x y)})))
                           :children [{:kind :elem
+                                      :class "tetherball-value-label-backing"
+                                      :tag "rect"
+                                      :did-mount
+                                      (fn [node ratom]
+                                        (rid3-> node
+                                                {:x 0 :y -20
+                                                 :width 120 :height 28}))}
+                                     {:kind :elem
                                       :class "tetherball-value-checkbox"
                                       :tag "rect"
                                       :did-mount
@@ -235,9 +250,7 @@
                                       :did-mount
                                       (fn [node ratom]
                                         (let [dataset (:dataset @ratom)
-                                              render? (> (:value dataset) (:target dataset))]
-                                          (prn dataset)
-                                          (prn render?)
+                                              render? (>= (:value dataset) (:target dataset))]
                                           (when render?
                                             ;;TODO this is really hardcoded
                                             (rid3-> node

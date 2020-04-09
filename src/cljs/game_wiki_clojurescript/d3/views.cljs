@@ -3,7 +3,8 @@
             [game-wiki-clojurescript.d3.bar-chart :as bar]
             [game-wiki-clojurescript.d3.line-chart :as line]
             [game-wiki-clojurescript.d3.tetherball-chart :as tetherball]
-            [game-wiki-clojurescript.routing :as routing]))
+            [game-wiki-clojurescript.routing :as routing]
+            [goog.string :as gstr]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Usage
@@ -47,7 +48,11 @@
                                  :target 230})
 (def tetherball-chart-dataset-3 {:min 220
                                  :max 270
-                                 :value 240
+                                 :value 230
+                                 :target 230})
+(def tetherball-chart-dataset-4 {:min 220
+                                 :max 270
+                                 :value 234
                                  :target 230})
 (def tetherball-chart-1 {:title "My Tetherball Chart"
                          :width 500
@@ -61,6 +66,14 @@
                          :width 500
                          :height 260
                          :id "tetherball-graph-3"})
+(def tetherball-chart-4 {:title "My Tetherball Chart"
+                         :width 500
+                         :height 260
+                         :id "tetherball-graph-4"})
+
+(defn- display-chart-data [{:keys [min target value max]}]
+  (gstr/format "Min %d | Target %d | Value %d | Max %d"
+               min target value max))
 
 (defn tetherball-chart-page []
   [:div
@@ -68,19 +81,24 @@
    (let [ratom (r/atom {:dataset tetherball-chart-dataset-1
                         :chart tetherball-chart-1})]
      [:div
-      [:span "Min 200 | Target 230 | Value 240 | Max 250"]
+      [:span (display-chart-data tetherball-chart-dataset-1)]
       [tetherball/tetherball-chart {:ratom ratom}]
       [:hr]])
    (let [ratom (r/atom {:dataset tetherball-chart-dataset-2
                         :chart tetherball-chart-2})]
      [:div
-      [:span "Min 200 | Value 220 | Target 230 | Max 250"]
+      [:span (display-chart-data tetherball-chart-dataset-2)]
       [tetherball/tetherball-chart {:ratom ratom}]
       [:hr]])
    (let [ratom (r/atom {:dataset tetherball-chart-dataset-3
                         :chart tetherball-chart-3})]
      [:div
-      [:span "Min 220 | Target 230 | Value 240 | Max 270"]
+      [:span (display-chart-data tetherball-chart-dataset-3)]
+      [tetherball/tetherball-chart {:ratom ratom}]])
+   (let [ratom (r/atom {:dataset tetherball-chart-dataset-4
+                        :chart tetherball-chart-4})]
+     [:div
+      [:span (display-chart-data tetherball-chart-dataset-4)]
       [tetherball/tetherball-chart {:ratom ratom}]])])
 
 (defn overview-page []
