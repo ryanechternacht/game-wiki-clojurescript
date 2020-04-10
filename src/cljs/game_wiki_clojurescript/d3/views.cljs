@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [game-wiki-clojurescript.d3.bar-chart :as bar]
             [game-wiki-clojurescript.d3.line-chart :as line]
+            [game-wiki-clojurescript.d3.line-chart-v2 :as line-v2]
             [game-wiki-clojurescript.d3.tetherball-chart :as tetherball]
             [game-wiki-clojurescript.routing :as routing]
             [goog.string :as gstr]))
@@ -37,6 +38,16 @@
     [:div
      [:h3 "Line Chart Demo"]
      [line/line-chart {:ratom ratom}]]))
+
+(def line-chart-v2 {})
+(def line-chart-v2-dataset [])
+
+(defn line-chart-v2-page []
+  (let [ratom (r/atom {:dataset line-chart-v2-dataset
+                       :chart line-chart-v2})]
+    [:div
+     [:h3 "Line Chart v2 Demo"]
+     [line-v2/line-chart {:ratom ratom}]]))
 
 (def tetherball-chart-dataset-1 {:min 200
                                  :max 250
@@ -109,5 +120,7 @@
      [:a {:href (routing/path-for :d3-bar-chart)} "Bar Chart"]]
     [:li
      [:a {:href (routing/path-for :d3-line-chart)} "Line Chart"]]
+    [:li
+     [:a {:href (routing/path-for :d3-line-chart-v2)} "Line Chart v2"]]
     [:li
      [:a {:href (routing/path-for :d3-tetherball-chart)} "Tetherball Chart"]]]])
