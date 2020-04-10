@@ -14,8 +14,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
 (defn translate [x y]
-  (let [x1 (if (nil? x) 0 x)
-        y1 (if (nil? y) 0 y)]
+  (let [x (if (nil? x) 0 x)
+        y (if (nil? y) 0 y)]
     (str "translate(" x "," y ")")))
 
 (defn prepare-dataset [ratom]
@@ -48,13 +48,6 @@
      :y (:top margin)
      :width (- (:width chart) (:left margin) (:right margin))
      :height (- (:height chart) (:top margin) (:bottom margin))}))
-
-; need default bar-colors
-;; (defn ->bar-color [ratom]
-;;   (let [bar-colors (get-in @ratom [:chart :bar-colors])]
-;;     (fn [i]
-;;       (->> (rem i (count bar-colors))
-;;            (nth bar-colors)))))
 
 (defn ->x-scale [ratom]
   (let [{:keys [dataset]} @ratom
@@ -91,14 +84,13 @@
                        (let [chart-area (->chart-area ratom)]
                          (rid3-> node
                                  {:transform (translate (:x chart-area) (:y chart-area))})))}
-    :pieces [{:kind :elem-with-data
+    :pieces [{:kind :elem
               :class "line"
               :tag "path"
               :did-mount
               (fn [node ratom]
                 (let [y-scale (->y-scale ratom)
-                      x-scale (->x-scale ratom)
-                      chart-area (->chart-area ratom)]
+                      x-scale (->x-scale ratom)]
                   (rid3-> node
                           (.datum (prepare-dataset ratom))
                           {:d (-> (.line js/d3)

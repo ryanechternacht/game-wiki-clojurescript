@@ -17,8 +17,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
 (defn translate [x y]
-  (let [x1 (if (nil? x) 0 x)
-        y1 (if (nil? y) 0 y)]
+  (let [x (if (nil? x) 0 x)
+        y (if (nil? y) 0 y)]
     (gstr/format "translate(%d,%d)" x y)))
 
 (defn prepare-dataset [ratom]

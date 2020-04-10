@@ -39,8 +39,25 @@
      [:h3 "Line Chart Demo"]
      [line/line-chart {:ratom ratom}]]))
 
-(def line-chart-v2 {})
-(def line-chart-v2-dataset [])
+(def line-chart-v2 {:title "Student Map Scores"
+                    :width 600
+                    :height 400
+                    :id "line-chart-v2"})
+(def line-chart-v2-dataset
+  ;; TODO render this as different vectors
+  ;; or multiple datapoints on one vector
+  {:reference [{:label "Spring 18" :value 200}
+               {:label "Fall 19" :value 210}
+               {:label "Winter 19" :value 220}
+               {:label "Spring 19" :value 230}
+               {:label "Fall 20" :value 240}
+               {:label "Winter 20" :value 250}]
+   :student [{:label "Spring 18" :value 220}
+             {:label "Fall 19" :value 204}
+             {:label "Winter 19" :value 224}
+             {:label "Spring 19" :value 244}
+             {:label "Fall 20" :value 236}
+             {:label "Winter 20" :value 256}]})
 
 (defn line-chart-v2-page []
   (let [ratom (r/atom {:dataset line-chart-v2-dataset
