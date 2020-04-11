@@ -5,6 +5,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart Params
+;; TODO move these into the component itself so we can merge
+;; user supplied settings into these
 (def margin {:top 40
              :bottom 40
              :left 40
@@ -16,14 +18,16 @@
                      :dashes "8 4"
                      :width 1})
 
+(def legend {:font-size 18})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
-(defn translate [x y]
+(defn- translate [x y]
   (let [x (if (nil? x) 0 x)
         y (if (nil? y) 0 y)]
     (str "translate(" x "," y ")")))
 
-(defn prepare-dataset [ratom line]
+(defn- prepare-dataset [ratom line]
   (-> @ratom
       :dataset
       line
@@ -31,18 +35,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Build chart components
-;; All of these take ratom,
-;; 1) this is simple
-;; 2) does this cause unecessary redrawing?
-;; 3) should they only take the direct thing they need?
-(defn ->chart-area [ratom]
+(defn- ->chart-area [ratom]
   (let [{chart :chart} @ratom]
     {:x (:left margin)
      :y (:top margin)
      :width (- (:width chart) (:left margin) (:right margin))
      :height (- (:height chart) (:top margin) (:bottom margin))}))
 
-(defn ->x-scale [ratom]
+(defn- ->x-scale [ratom]
   (let [{:keys [dataset]} @ratom
         chart-area (->chart-area ratom)
         labels (mapv :label (:reference dataset))]
@@ -52,7 +52,7 @@
         (.padding 0.1)
         (.domain (clj->js labels)))))
 
-(defn ->y-scale [ratom]
+(defn- ->y-scale [ratom]
   (let [{:keys [dataset]} @ratom
         chart-area (->chart-area ratom)
         values (mapv :value (:reference dataset))
@@ -64,126 +64,133 @@
         ;;TODO Magic number
         (.domain #js [(- min-value 10) (+ 10 max-value)]))))
 
-(defn generate-legend-y-positions [ratom]
+;; returns the new position of y1 based on y2's position
+;; and how much buffer should be between them. on-tie should
+;; be + or - based on which way to move y1 if it has the same
+;; position as y2
+(defn- avoid-y-overlap [y1 y2 buffer on-tie]
+  (let [pos-diff (Math/abs (- y1 y2))
+        split (/ (- buffer pos-diff) 2)]
+    (if (< pos-diff split)
+      (if (= y1 y2)
+        (on-tie y1 split)
+        (if (> y1 y2)
+          (+ y1 split)
+          (- y1 split)))
+      y1)))
+
+; TODO this seems like a clusterfuck
+(defn- ->legend-positions [ratom]
   (let [y-scale (->y-scale ratom)
-        student-y (-> @ratom
-                      :dataset
-                      :student
-                      last
-                      :value)
-        reference-y (-> @ratom
-                        :dataset
-                        :reference
-                        last
-                        :value)]
-    {:student (y-scale student-y)
-     :reference (y-scale reference-y)}))
+        x-scale (->x-scale ratom)
+        student-final (-> @ratom :dataset :student last)
+        reference-final (-> @ratom :dataset :reference last)
+        font-size (:font-size legend)
+        center-y #(+ %1 (/ font-size 2) -2)
+        y-student (-> (:value student-final) y-scale center-y)
+        y-reference (-> (:value reference-final) y-scale center-y)
+        overlap-zone (+ font-size 2)]
+    {:y-student (avoid-y-overlap y-student y-reference overlap-zone -)
+     :y-reference (avoid-y-overlap y-reference y-student overlap-zone +)
+     :x (+ (x-scale (:label student-final))
+           (* (/ (.bandwidth x-scale) 4) 3))}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart
 (defn line-chart [{:keys [ratom]}]
-  [rid3/viz
-   {:id (get-in @ratom [:chart :id])
-    :ratom ratom
-    :svg {:did-mount
-          (fn [node ratom]
-            (let [{:keys [chart]} @ratom]
-              (rid3-> node
-                      {:width (:width chart)
-                       :height (:height chart)})))}
-    :main-container {:did-mount
-                     (fn [node ratom]
-                       (let [chart-area (->chart-area ratom)]
+  (let [x-scale (->x-scale ratom)
+        y-scale (->y-scale ratom)
+        chart-area (->chart-area ratom)
+        legend-position (->legend-positions ratom)]
+    [rid3/viz
+     {:id (get-in @ratom [:chart :id])
+      :ratom ratom
+      :svg {:did-mount
+            (fn [node ratom]
+              (let [{:keys [chart]} @ratom]
+                (rid3-> node
+                        {:width (:width chart)
+                         :height (:height chart)})))}
+      :main-container {:did-mount
+                       (fn [node ratom]
                          (rid3-> node
                                  {:transform (translate (:x chart-area)
-                                                        (:y chart-area))})))}
-    :pieces [{:kind :elem
-              :class "student-line"
-              :tag "path"
-              :did-mount
-              (fn [node ratom]
-                (let [y-scale (->y-scale ratom)
-                      x-scale (->x-scale ratom)
-                      offset-to-center-x (/ (.bandwidth x-scale) 2)
-                      {:keys [color width]} student-line]
-                  (rid3-> node
-                          (.datum (prepare-dataset ratom :student))
-                          {:d (-> (.line js/d3)
-                                  (.x #(+ (x-scale (.-label %))
-                                          offset-to-center-x))
-                                  (.y #(y-scale (.-value %))))
-                           :stroke color
-                           :stroke-width width
-                           :fill "none"})))}
-             {:kind :elem
-              :class "reference-line"
-              :tag "path"
-              :did-mount
-              (fn [node ratom]
-                (let [y-scale (->y-scale ratom)
-                      x-scale (->x-scale ratom)
-                      offset-to-center-x (/ (.bandwidth x-scale) 2)
-                      {:keys [color dashes width]} reference-line]
-                  (rid3-> node
-                          (.datum (prepare-dataset ratom :reference))
-                          {:d (-> (.line js/d3)
-                                  (.x #(+ (x-scale (.-label %))
-                                          offset-to-center-x))
-                                  (.y #(y-scale (.-value %))))
-                           :stroke color
-                           :stroke-width width
-                           :fill "none"
-                           :stroke-dasharray dashes})))}
-             {:kind :container
-              :class "x-axis"
-              :did-mount
-              (fn [node ratom]
-                (let [x-scale (->x-scale ratom)
-                      chart-area (->chart-area ratom)]
+                                                        (:y chart-area))}))}
+      :pieces [{:kind :elem
+                :class "student-line"
+                :tag "path"
+                :did-mount
+                (fn [node ratom]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
+                        {:keys [color width]} student-line]
+                    (rid3-> node
+                            (.datum (prepare-dataset ratom :student))
+                            {:d (-> (.line js/d3)
+                                    (.x #(+ (x-scale (.-label %))
+                                            offset-to-center-x))
+                                    (.y #(y-scale (.-value %))))
+                             :stroke color
+                             :stroke-width width
+                             :fill "none"})))}
+               {:kind :elem
+                :class "reference-line"
+                :tag "path"
+                :did-mount
+                (fn [node ratom]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
+                        {:keys [color dashes width]} reference-line]
+                    (rid3-> node
+                            (.datum (prepare-dataset ratom :reference))
+                            {:d (-> (.line js/d3)
+                                    (.x #(+ (x-scale (.-label %))
+                                            offset-to-center-x))
+                                    (.y #(y-scale (.-value %))))
+                             :stroke color
+                             :stroke-width width
+                             :fill "none"
+                             :stroke-dasharray dashes})))}
+               {:kind :container
+                :class "x-axis"
+                :did-mount
+                (fn [node ratom]
                   (rid3-> node
                           {:transform (translate 0 (:height chart-area))}
-                          (.call (.axisBottom js/d3 x-scale)))))}
-             {:kind :container
-              :class "y-axis"
-              :did-mount
-              (fn [node ratom]
-                (let [y-scale (->y-scale ratom)]
+                          (.call (.axisBottom js/d3 x-scale))))}
+               {:kind :container
+                :class "y-axis"
+                :did-mount
+                (fn [node ratom]
                   (rid3-> node
                           (.call (-> (.axisLeft js/d3 y-scale)
-                                     (.ticks 3))))))}
-             {:kind :container
-              :class "legend"
-              :did-mount
-              (fn [node ratom]
-                (let [x-scale (->x-scale ratom)
-                      final-x (-> @ratom
-                                  :dataset
-                                  :student
-                                  last
-                                  :label)
-                      x (+ (x-scale final-x) (.bandwidth x-scale) -10)]
+                                     (.ticks 3)))))}
+               {:kind :container
+                :class "legend"
+                :did-mount
+                (fn [node ratom]
                   (rid3-> node
-                          {:transform (translate x 0)})))
-              :children [{:kind :elem
-                          :class "student-legend"
-                          :tag "text"
-                          :did-mount
-                          (fn [node ratom]
-                            (let [y (:student (generate-legend-y-positions ratom))
-                                  {:keys [color]} student-line]
-                              (rid3-> node
-                                      {:y y
-                                       :fill color}
+                          {:transform (translate (:x legend-position) 0)}))
+                :children [{:kind :elem
+                            :class "student-legend"
+                            :tag "text"
+                            :did-mount
+                            (fn [node ratom]
+                              (let [{:keys [color]} student-line
+                                    {:keys [font-size]} legend]
+                                (rid3-> node
+                                        {:y (:y-student legend-position)
+                                         :fill color
+                                         :font-size font-size}
                                       ;;TODO pull this
-                                      (.text "Student"))))}
-                         {:kind :elem
-                          :class "reference-legend"
-                          :tag "text"
-                          :did-mount
-                          (fn [node ratom]
-                            (let [y (:reference (generate-legend-y-positions ratom))
-                                  {:keys [color]} reference-line]
-                              (rid3-> node
-                                      {:y y
-                                       :fill color}
-                                      (.text "Reference"))))}]}]}])
+                                        (.text "Student"))))}
+                           {:kind :elem
+                            :class "reference-legend"
+                            :tag "text"
+                            :did-mount
+                            (fn [node ratom]
+                              (let [{:keys [color]} reference-line
+                                    {:keys [font-size]} legend]
+                                (rid3-> node
+                                        {:y (:y-reference legend-position)
+                                         :fill color
+                                         :font-size font-size}
+                                        (.text "Reference"))))}]}]}]))
