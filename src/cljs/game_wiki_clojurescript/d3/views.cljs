@@ -57,7 +57,7 @@
              {:label "Winter 19" :value 224}
              {:label "Spring 19" :value 244}
              {:label "Fall 20" :value 236}
-             {:label "Winter 20" :value 256}]})
+             {:label "Winter 20" :value 251}]})
 
 (defn line-chart-v2-page []
   (let [ratom (r/atom {:dataset line-chart-v2-dataset

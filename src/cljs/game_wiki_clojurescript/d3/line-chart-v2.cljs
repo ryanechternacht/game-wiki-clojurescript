@@ -8,9 +8,9 @@
 (def margin {:top 40
              :bottom 40
              :left 40
-             :right 0})
+             :right 80})
 
-(def student-line {:color "lightblue"
+(def student-line {:color "blue"
                    :width 2})
 (def reference-line {:color "#aaa"
                      :dashes "8 4"
@@ -64,6 +64,23 @@
         ;;TODO Magic number
         (.domain #js [(- min-value 10) (+ 10 max-value)]))))
 
+(defn generate-legend-y-positions [ratom]
+  (let [y-scale (->y-scale ratom)
+        student-y (-> @ratom
+                      :dataset
+                      :student
+                      last
+                      :value)
+        reference-y (-> @ratom
+                        :dataset
+                        :reference
+                        last
+                        :value)]
+    {:student (y-scale student-y)
+     :reference (y-scale reference-y)}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Chart
 (defn line-chart [{:keys [ratom]}]
   [rid3/viz
    {:id (get-in @ratom [:chart :id])
@@ -98,7 +115,6 @@
                            :stroke color
                            :stroke-width width
                            :fill "none"})))}
-
              {:kind :elem
               :class "reference-line"
               :tag "path"
@@ -134,4 +150,40 @@
                 (let [y-scale (->y-scale ratom)]
                   (rid3-> node
                           (.call (-> (.axisLeft js/d3 y-scale)
-                                     (.ticks 3))))))}]}])
+                                     (.ticks 3))))))}
+             {:kind :container
+              :class "legend"
+              :did-mount
+              (fn [node ratom]
+                (let [x-scale (->x-scale ratom)
+                      final-x (-> @ratom
+                                  :dataset
+                                  :student
+                                  last
+                                  :label)
+                      x (+ (x-scale final-x) (.bandwidth x-scale) -10)]
+                  (rid3-> node
+                          {:transform (translate x 0)})))
+              :children [{:kind :elem
+                          :class "student-legend"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (let [y (:student (generate-legend-y-positions ratom))
+                                  {:keys [color]} student-line]
+                              (rid3-> node
+                                      {:y y
+                                       :fill color}
+                                      ;;TODO pull this
+                                      (.text "Student"))))}
+                         {:kind :elem
+                          :class "reference-legend"
+                          :tag "text"
+                          :did-mount
+                          (fn [node ratom]
+                            (let [y (:reference (generate-legend-y-positions ratom))
+                                  {:keys [color]} reference-line]
+                              (rid3-> node
+                                      {:y y
+                                       :fill color}
+                                      (.text "Reference"))))}]}]}])
