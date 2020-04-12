@@ -12,13 +12,14 @@
              :left 40
              :right 80})
 
-(def student-line {:color "blue"
-                   :width 2})
-(def reference-line {:color "#aaa"
-                     :dashes "8 4"
-                     :width 1})
-
-(def legend {:font-size 18})
+(def default-styles {:student-line {:stroke "blue"
+                                    :stroke-width 2
+                                    :fill "none"}
+                     :reference-line {:stroke "#aaa"
+                                      :stroke-dasharray "8 4"
+                                      :stroke-width 1
+                                      :fill "none"}
+                     :legend {:font-size 18}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
@@ -80,7 +81,7 @@
       y1)))
 
 ; TODO this seems like a clusterfuck
-(defn- ->legend-positions [ratom]
+(defn- ->legend-positions [ratom legend]
   (let [y-scale (->y-scale ratom)
         x-scale (->x-scale ratom)
         student-final (-> @ratom :dataset :student last)
@@ -97,11 +98,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart
-(defn line-chart [{:keys [ratom]}]
+(defn line-chart [{:keys [ratom styles]}]
   (let [x-scale (->x-scale ratom)
         y-scale (->y-scale ratom)
         chart-area (->chart-area ratom)
-        legend-position (->legend-positions ratom)]
+        student-line (merge (:student-line default-styles)
+                            (:student-line styles))
+        reference-line (merge (:reference-line default-styles)
+                              (:reference-line styles))
+        legend (merge (:legend default-styles)
+                      (:legend styles))
+        legend-position (->legend-positions ratom legend)]
     [rid3/viz
      {:id (get-in @ratom [:chart :id])
       :ratom ratom
@@ -122,33 +129,33 @@
                 :did-mount
                 (fn [node ratom]
                   (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
-                        {:keys [color width]} student-line]
+                        {:keys [stroke stroke-width fill]} student-line]
                     (rid3-> node
                             (.datum (prepare-dataset ratom :student))
                             {:d (-> (.line js/d3)
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))
-                             :stroke color
-                             :stroke-width width
-                             :fill "none"})))}
+                             :stroke stroke
+                             :stroke-width stroke-width
+                             :fill fill})))}
                {:kind :elem
                 :class "reference-line"
                 :tag "path"
                 :did-mount
                 (fn [node ratom]
                   (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
-                        {:keys [color dashes width]} reference-line]
+                        {:keys [stroke stroke-dasharray stroke-width fill]} reference-line]
                     (rid3-> node
                             (.datum (prepare-dataset ratom :reference))
                             {:d (-> (.line js/d3)
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))
-                             :stroke color
-                             :stroke-width width
-                             :fill "none"
-                             :stroke-dasharray dashes})))}
+                             :stroke stroke
+                             :stroke-width stroke-width
+                             :fill fill
+                             :stroke-dasharray stroke-dasharray})))}
                {:kind :container
                 :class "x-axis"
                 :did-mount
@@ -174,11 +181,11 @@
                             :tag "text"
                             :did-mount
                             (fn [node ratom]
-                              (let [{:keys [color]} student-line
+                              (let [{:keys [stroke]} student-line
                                     {:keys [font-size]} legend]
                                 (rid3-> node
                                         {:y (:y-student legend-position)
-                                         :fill color
+                                         :fill stroke
                                          :font-size font-size}
                                       ;;TODO pull this
                                         (.text "Student"))))}
@@ -187,10 +194,10 @@
                             :tag "text"
                             :did-mount
                             (fn [node ratom]
-                              (let [{:keys [color]} reference-line
+                              (let [{:keys [stroke]} reference-line
                                     {:keys [font-size]} legend]
                                 (rid3-> node
                                         {:y (:y-reference legend-position)
-                                         :fill color
+                                         :fill stroke
                                          :font-size font-size}
                                         (.text "Reference"))))}]}]}]))
