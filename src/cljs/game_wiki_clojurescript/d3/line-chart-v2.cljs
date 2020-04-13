@@ -1,7 +1,8 @@
 (ns game-wiki-clojurescript.d3.line-chart-v2
   (:require [reagent.core :as r]
             [d3 :as d3]
-            [rid3.core :as rid3 :refer [rid3->]]))
+            [rid3.core :as rid3 :refer [rid3->]]
+            [rid3.attrs :as rid3a]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart Params
@@ -128,34 +129,27 @@
                 :tag "path"
                 :did-mount
                 (fn [node ratom]
-                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
-                        {:keys [stroke stroke-width fill]} student-line]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
                     (rid3-> node
                             (.datum (prepare-dataset ratom :student))
                             {:d (-> (.line js/d3)
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
-                                    (.y #(y-scale (.-value %))))
-                             :stroke stroke
-                             :stroke-width stroke-width
-                             :fill fill})))}
+                                    (.y #(y-scale (.-value %))))}
+                            (rid3a/attrs student-line))))}
                {:kind :elem
                 :class "reference-line"
                 :tag "path"
                 :did-mount
                 (fn [node ratom]
-                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)
-                        {:keys [stroke stroke-dasharray stroke-width fill]} reference-line]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
                     (rid3-> node
                             (.datum (prepare-dataset ratom :reference))
                             {:d (-> (.line js/d3)
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
-                                    (.y #(y-scale (.-value %))))
-                             :stroke stroke
-                             :stroke-width stroke-width
-                             :fill fill
-                             :stroke-dasharray stroke-dasharray})))}
+                                    (.y #(y-scale (.-value %))))}
+                            (rid3a/attrs reference-line))))}
                {:kind :container
                 :class "x-axis"
                 :did-mount
@@ -194,10 +188,9 @@
                             :tag "text"
                             :did-mount
                             (fn [node ratom]
-                              (let [{:keys [stroke]} reference-line
-                                    {:keys [font-size]} legend]
+                              (let [{:keys [stroke]} reference-line]
                                 (rid3-> node
                                         {:y (:y-reference legend-position)
-                                         :fill stroke
-                                         :font-size font-size}
+                                         :fill stroke}
+                                        (rid3a/attrs legend)
                                         (.text "Reference"))))}]}]}]))

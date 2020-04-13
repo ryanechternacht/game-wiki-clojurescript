@@ -20,7 +20,7 @@
                   :exclusions [org.clojure/tools.reader]]
                  [re-frame "RELEASE"]
                  [cljsjs/d3 "5.12.0-0"]
-                 [rid3 "0.2.1"]]
+                 [rid3 "0.2.2"]]
 
   :plugins [[lein-environ "1.1.0"]
             [lein-cljsbuild "1.1.7"]
