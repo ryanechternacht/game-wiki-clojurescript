@@ -4,6 +4,15 @@
             [rid3.core :as rid3 :refer [rid3->]]
             [rid3.attrs :as rid3a]))
 
+;; courtesy of @andrewboltachev
+;; https://gist.github.com/danielpcox/c70a8aa2c36766200a95
+(defn deep-merge [& maps]
+  (apply merge-with (fn [& args]
+                      (if (every? #(or (map? %) (nil? %)) args)
+                        (apply deep-merge args)
+                        (last args)))
+         maps))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart Params
 ;; TODO move these into the component itself so we can merge
@@ -20,7 +29,23 @@
                                       :stroke-dasharray "8 4"
                                       :stroke-width 1
                                       :fill "none"}
-                     :legend {:font-size 18}})
+                     :legend {:font-size 18}
+                     :axes {:line {:stroke "#aaa"}
+                            :text {:fill "#666"}}})
+
+(defn style-axis [node axis-style]
+  (let [line-style (:line axis-style)
+        text-style (:text axis-style)]
+    (do
+      (rid3-> node
+              (.select "path")
+              (rid3a/attrs line-style))
+      (rid3-> node
+              (.selectAll ".tick line")
+              (rid3a/attrs line-style))
+      (rid3-> node
+              (.selectAll ".tick text")
+              (rid3a/attrs text-style)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utils
@@ -103,13 +128,12 @@
   (let [x-scale (->x-scale ratom)
         y-scale (->y-scale ratom)
         chart-area (->chart-area ratom)
-        student-line (merge (:student-line default-styles)
-                            (:student-line styles))
-        reference-line (merge (:reference-line default-styles)
-                              (:reference-line styles))
-        legend (merge (:legend default-styles)
-                      (:legend styles))
-        legend-position (->legend-positions ratom legend)]
+        final-styles (deep-merge default-styles styles)
+        student-line-style (:student-line final-styles)
+        reference-line-style (:reference-line final-styles)
+        legend-style (:legend final-styles)
+        axes-style (:axes final-styles)
+        legend-position (->legend-positions ratom legend-style)]
     [rid3/viz
      {:id (get-in @ratom [:chart :id])
       :ratom ratom
@@ -136,7 +160,7 @@
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))}
-                            (rid3a/attrs student-line))))}
+                            (rid3a/attrs student-line-style))))}
                {:kind :elem
                 :class "reference-line"
                 :tag "path"
@@ -149,21 +173,23 @@
                                     (.x #(+ (x-scale (.-label %))
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))}
-                            (rid3a/attrs reference-line))))}
+                            (rid3a/attrs reference-line-style))))}
                {:kind :container
                 :class "x-axis"
                 :did-mount
                 (fn [node ratom]
                   (rid3-> node
                           {:transform (translate 0 (:height chart-area))}
-                          (.call (.axisBottom js/d3 x-scale))))}
+                          (.call (.axisBottom js/d3 x-scale))
+                          (style-axis axes-style)))}
                {:kind :container
                 :class "y-axis"
                 :did-mount
                 (fn [node ratom]
                   (rid3-> node
                           (.call (-> (.axisLeft js/d3 y-scale)
-                                     (.ticks 3)))))}
+                                     (.ticks 3)))
+                          (style-axis axes-style)))}
                {:kind :container
                 :class "legend"
                 :did-mount
@@ -175,22 +201,21 @@
                             :tag "text"
                             :did-mount
                             (fn [node ratom]
-                              (let [{:keys [stroke]} student-line
-                                    {:keys [font-size]} legend]
+                              (let [{:keys [stroke]} student-line-style]
                                 (rid3-> node
                                         {:y (:y-student legend-position)
-                                         :fill stroke
-                                         :font-size font-size}
-                                      ;;TODO pull this
+                                         :fill stroke}
+                                        (rid3a/attrs legend-style)
+                                      ;;TODO pull this from dataset
                                         (.text "Student"))))}
                            {:kind :elem
                             :class "reference-legend"
                             :tag "text"
                             :did-mount
                             (fn [node ratom]
-                              (let [{:keys [stroke]} reference-line]
+                              (let [{:keys [stroke]} reference-line-style]
                                 (rid3-> node
                                         {:y (:y-reference legend-position)
                                          :fill stroke}
-                                        (rid3a/attrs legend)
+                                        (rid3a/attrs legend-style)
                                         (.text "Reference"))))}]}]}]))

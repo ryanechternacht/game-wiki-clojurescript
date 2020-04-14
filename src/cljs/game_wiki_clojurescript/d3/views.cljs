@@ -63,7 +63,9 @@
                             :stroke-width 4}
              :reference-line {:stroke "green"
                               :stroke-dasharray "24 12"}
-             :legend {:font-size 24}})
+             :legend {:font-size 24}
+             :axes {:line {:stroke "purple"}
+                    :text {:fill "orange"}}})
 
 (defn line-chart-v2-page []
   (let [ratom (r/atom {:dataset line-chart-v2-dataset
