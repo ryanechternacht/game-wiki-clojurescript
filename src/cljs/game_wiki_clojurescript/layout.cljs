@@ -16,7 +16,9 @@
         [:li.nav-item {:class (str (if (= :cards current-area) "active"))}
          [:a.nav-link {:href (routing/path-for :card-list)} "Card List"]]
         [:li.nav-item {:class (str (if (= :faqs current-area) "active"))}
-         [:a.nav-link {:href (routing/path-for :faq-list)} "FAQ"]]])]]])
+         [:a.nav-link {:href (routing/path-for :faq-list)} "FAQ"]]
+        [:li.nav-item {:class (str (if (= :d3 current-area) "active"))}
+         [:a.nav-link {:href (routing/path-for :d3-overview)} "d3"]]])]]])
 
 (defn the-footer []
   [:div.footer

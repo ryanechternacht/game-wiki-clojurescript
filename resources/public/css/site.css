@@ -47,3 +47,62 @@
   color: #444;
   font-style: italic;
 }
+
+/* tetherball graph */
+.tetherball-axis-line {
+  stroke: #aaa;
+}
+
+.tetherball-axis-label {
+  font-size: 10px;
+  fill: #888;
+  text-anchor: middle;
+}
+
+.tetherball-target-line {
+  stroke: black;
+}
+
+.tetherball-target-label {
+  fill: black;
+  font-size: 10px;
+}
+
+.tetherball-target-background {
+  fill: white;
+}
+
+.tetherball-value-score {
+  fill: black;
+  font-size: 24px;
+  text-anchor: middle;
+}
+
+.tetherball-value-label {
+  fill: black;
+  font-size: 16px;
+}
+
+.tetherball-value-label-backing {
+  fill: white;
+}
+
+.tetherball-value-circle {
+  fill: #ddd;
+  stroke: black;
+}
+
+.svg-align-right {
+  text-anchor: end;
+}
+
+.tetherball-value-check {
+  stroke-width: 3px;
+  stroke: green;
+  fill: none;
+}
+
+.tetherball-value-checkbox {
+  fill: white;
+  stroke: black;
+}

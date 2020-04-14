@@ -11,7 +11,8 @@
    [game-wiki-clojurescript.faqs.views :as faqs]
    [game-wiki-clojurescript.re-frame]
    [game-wiki-clojurescript.routing :as routing]
-   [game-wiki-clojurescript.layout :as layout]))
+   [game-wiki-clojurescript.layout :as layout]
+   [game-wiki-clojurescript.d3.views :as d3]))
 
 ;; -------------------------
 ;; Page mounting component
@@ -40,6 +41,11 @@
     :faq-edit #'faqs/faq-edit-page
     :faq-new #'faqs/faq-edit-page
     :faq-search #'faqs/faq-search-page
+    :d3-overview #'d3/overview-page
+    :d3-bar-chart #'d3/bar-chart-page
+    :d3-line-chart #'d3/line-chart-page
+    :d3-tetherball-chart #'d3/tetherball-chart-page
+    :d3-line-chart-v2 #'d3/line-chart-v2-page
     (str "Unknown route " route)))
 
 ;; -------------------------
