@@ -22,7 +22,8 @@
      ["/bar-chart" :d3-bar-chart]
      ["/line-chart" :d3-line-chart]
      ["/tetherball-chart" :d3-tetherball-chart]
-     ["/line-chart-v2" :d3-line-chart-v2]]]))
+     ["/line-chart-v2" :d3-line-chart-v2]
+     ["/line-chart-v3" :d3-line-chart-v3]]]))
 
 (defn route-for [route & [params]]
   (reitit/match-by-name router route params))

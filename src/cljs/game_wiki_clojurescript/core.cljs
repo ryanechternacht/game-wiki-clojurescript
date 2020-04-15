@@ -44,8 +44,9 @@
     :d3-overview #'d3/overview-page
     :d3-bar-chart #'d3/bar-chart-page
     :d3-line-chart #'d3/line-chart-page
-    :d3-tetherball-chart #'d3/tetherball-chart-page
     :d3-line-chart-v2 #'d3/line-chart-v2-page
+    :d3-line-chart-v3 #'d3/line-chart-v3-page
+    :d3-tetherball-chart #'d3/tetherball-chart-page
     (str "Unknown route " route)))
 
 ;; -------------------------
