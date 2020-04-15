@@ -35,6 +35,7 @@
                      :floating-axes {:fill "blue"
                                      :font-size 13}})
 
+;; TODO to be removed
 (defn style-axis [node axis-style]
   (let [line-style (:line axis-style)
         text-style (:text axis-style)]
@@ -277,14 +278,23 @@
               ;;                ;;TODO pull from styles
               ;;                :r 3
               ;;                :fill (:stroke reference-line-style)})))}
-               {:kind :container
-                :class "x-axis"
+              ;;  {:kind :container
+              ;;   :class "x-axis"
+              ;;   :did-mount
+              ;;   (fn [node ratom]
+              ;;     (rid3-> node
+              ;;             {:transform (translate 0 (:height chart-area))}
+              ;;             (.call (.axisBottom js/d3 x-scale))
+              ;;             (style-axis axes-style)))}
+               {:kind :elem
+                :class "x-axis-line"
+                :tag "line"
                 :did-mount
                 (fn [node ratom]
                   (rid3-> node
-                          {:transform (translate 0 (:height chart-area))}
-                          (.call (.axisBottom js/d3 x-scale))
-                          (style-axis axes-style)))}
+                          {:x1 0 :x2 (:width chart-area)
+                           :y1 (:height chart-area) :y2 (:height chart-area)}
+                          (rid3a/attrs (:line axes-style))))}
                {:kind :container
                 :class "y-axis"
                 :did-mount
