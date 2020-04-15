@@ -59,13 +59,14 @@
              {:label "Fall 20" :value 236}
              {:label "Winter 20" :value 250}]})
 
-(def styles {:student-line {:stroke "red"
-                            :stroke-width 4}
-             :reference-line {:stroke "green"
-                              :stroke-dasharray "24 12"}
-             :legend {:font-size 24}
-             :axes {:line {:stroke "purple"}
-                    :text {:fill "orange"}}})
+(def styles {})
+;; (def styles {:student-line {:stroke "red"
+;;                             :stroke-width 4}
+;;              :reference-line {:stroke "green"
+;;                               :stroke-dasharray "24 12"}
+;;              :legend {:font-size 24}
+;;              :axes {:line {:stroke "purple"}
+;;                     :text {:fill "orange"}}})
 
 (defn line-chart-v2-page []
   (let [ratom (r/atom {:dataset line-chart-v2-dataset

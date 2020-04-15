@@ -177,6 +177,20 @@
                              :text-anchor "middle"}
                             (rid3a/attrs floating-axes-style)
                             (.text #(.-label %)))))}
+               {:kind :elem-with-data
+                :class "student-points"
+                :tag "circle"
+                :prepare-dataset (fn [r] (prepare-dataset r :student))
+                :did-mount
+                (fn [node ratom]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
+                    (rid3-> node
+                            {:cx #(+ (x-scale (.-label %))
+                                     offset-to-center-x)
+                             :cy #(y-scale (.-value %1))
+                             ;;TODO pull from styles
+                             :r 5
+                             :fill (:stroke student-line-style)})))}
                {:kind :elem
                 :class "reference-line"
                 :tag "path"
