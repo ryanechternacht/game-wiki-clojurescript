@@ -32,7 +32,8 @@
                      :legend {:font-size 18}
                      :axes {:line {:stroke "#aaa"}
                             :text {:fill "#666"}}
-                     :floating-axes {:fill "#aaa"}})
+                     :floating-axes {:fill "blue"
+                                     :font-size 12}})
 
 (defn style-axis [node axis-style]
   (let [line-style (:line axis-style)
@@ -121,7 +122,7 @@
     {:y-student (avoid-y-overlap y-student y-reference overlap-zone -)
      :y-reference (avoid-y-overlap y-reference y-student overlap-zone +)
      :x (+ (x-scale (:label student-final))
-           (* (/ (.bandwidth x-scale) 4) 3))}))
+           (.bandwidth x-scale))}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart
