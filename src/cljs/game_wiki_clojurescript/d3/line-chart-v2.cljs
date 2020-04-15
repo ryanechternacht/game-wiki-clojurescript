@@ -33,7 +33,7 @@
                      :axes {:line {:stroke "#aaa"}
                             :text {:fill "#666"}}
                      :floating-axes {:fill "blue"
-                                     :font-size 12}})
+                                     :font-size 13}})
 
 (defn style-axis [node axis-style]
   (let [line-style (:line axis-style)
@@ -124,6 +124,59 @@
      :x (+ (x-scale (:label student-final))
            (.bandwidth x-scale))}))
 
+;; nth but returns nil if i is out of bounds for vec
+(defn- safe-nth [vec i]
+  (if (and (>= i 0) (< i (count vec)))
+    (nth vec i)
+    nil))
+
+;;TODO argument ordering
+(defn- label-y [i ratom y-scale style]
+  (let [line (-> @ratom :dataset :student)
+        font-size (:font-size style)
+        get-y #(let [val (safe-nth %1 %2)]
+                 (if (nil? val)
+                   nil
+                   (-> val :value y-scale)))
+        prior-y (get-y line (dec i))
+        point-y (get-y line i)
+        next-y (get-y line (inc i))
+        above? (cond (nil? prior-y) (<= point-y next-y)
+                     (nil? next-y) (>= prior-y point-y)
+                     :else (<= point-y (/ (+ prior-y next-y) 2)))]
+    (if above?
+      (- point-y font-size)
+      (+ point-y (* font-size 2)))))
+
+;;TODO argument ordering
+(defn- label-x [i ratom y-scale style starting-x]
+  (let [line (-> @ratom :dataset :student)
+        font-size (:font-size style)
+        get-y #(let [val (safe-nth %1 %2)]
+                 (if (nil? val)
+                   nil
+                   (-> val :value y-scale)))
+        prior-y (get-y line (dec i))
+        point-y (get-y line i)
+        next-y (get-y line (inc i))
+        ;; TODO calc on the fly (you can base off of label text I think)
+        adjustment 25]
+    (cond
+      ; don't move if 1) on either end or 2)/3) if the point is
+      ; larger or smaller than both of its neighbors
+      (or (nil? prior-y) (nil? next-y)) starting-x
+      (and (>= point-y prior-y) (>= point-y next-y)) starting-x
+      (and (<= point-y prior-y) (<= point-y next-y)) starting-x
+      ; if sloping up, then move left if point is above the midline, right otherwise
+      (>= prior-y point-y next-y) (if (<= point-y (/ (+ prior-y next-y) 2))
+                                    (- starting-x adjustment)
+                                    (+ starting-x adjustment))
+      ; if sloping down, then move right is point is above the midline, left otherwise
+      (<= prior-y point-y next-y) (if (<= point-y (/ (+ prior-y next-y) 2))
+                                    (+ starting-x adjustment)
+                                    (- starting-x adjustment))
+      :else starting-x)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart
 (defn line-chart [{:keys [ratom styles]}]
@@ -172,9 +225,13 @@
                 (fn [node ratom]
                   (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
                     (rid3-> node
-                            {:x #(+ (x-scale (.-label %))
-                                    offset-to-center-x)
-                             :y #(y-scale (.-value %))
+                            {:x #(label-x %2
+                                          ratom
+                                          y-scale
+                                          floating-axes-style
+                                          (+ (x-scale (.-label %1))
+                                             offset-to-center-x))
+                             :y #(label-y %2 ratom y-scale floating-axes-style)
                              :text-anchor "middle"}
                             (rid3a/attrs floating-axes-style)
                             (.text #(.-label %)))))}
@@ -205,6 +262,21 @@
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))}
                             (rid3a/attrs reference-line-style))))}
+              ;; TODO do we want this? it kinda sucks :/
+              ;;  {:kind :elem-with-data
+              ;;   :class "reference-points"
+              ;;   :tag "circle"
+              ;;   :prepare-dataset (fn [r] (prepare-dataset r :reference))
+              ;;   :did-mount
+              ;;   (fn [node ratom]
+              ;;     (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
+              ;;       (rid3-> node
+              ;;               {:cx #(+ (x-scale (.-label %))
+              ;;                        offset-to-center-x)
+              ;;                :cy #(y-scale (.-value %1))
+              ;;                ;;TODO pull from styles
+              ;;                :r 3
+              ;;                :fill (:stroke reference-line-style)})))}
                {:kind :container
                 :class "x-axis"
                 :did-mount
