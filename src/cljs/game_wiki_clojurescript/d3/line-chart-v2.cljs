@@ -132,7 +132,7 @@
     nil))
 
 ;;TODO argument ordering
-(defn- label-y [i ratom y-scale style]
+(defn- label-y [i ratom y-scale style label]
   (let [line (-> @ratom :dataset :student)
         font-size (:font-size style)
         get-y #(let [val (safe-nth %1 %2)]
@@ -144,10 +144,11 @@
         next-y (get-y line (inc i))
         above? (cond (nil? prior-y) (<= point-y next-y)
                      (nil? next-y) (>= prior-y point-y)
-                     :else (<= point-y (/ (+ prior-y next-y) 2)))]
+                     :else (<= point-y (/ (+ prior-y next-y) 2)))
+        layer (if (= label :outer) (+ font-size 5) 0)]
     (if above?
-      (- point-y font-size)
-      (+ point-y (* font-size 2)))))
+      (- point-y font-size layer)
+      (+ point-y (* font-size 2) layer))))
 
 ;;TODO argument ordering
 (defn- label-x [i ratom y-scale style starting-x]
@@ -218,8 +219,10 @@
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))}
                             (rid3a/attrs student-line-style))))}
+               ;; TODO this should be accomplished by allowing us to 
+               ;; pass a dataset to a container
                {:kind :elem-with-data
-                :class "student-labels"
+                :class "student-labels-x"
                 :tag "text"
                 :prepare-dataset (fn [r] (prepare-dataset r :student))
                 :did-mount
@@ -232,10 +235,28 @@
                                           floating-axes-style
                                           (+ (x-scale (.-label %1))
                                              offset-to-center-x))
-                             :y #(label-y %2 ratom y-scale floating-axes-style)
+                             :y #(label-y %2 ratom y-scale floating-axes-style :outer)
                              :text-anchor "middle"}
                             (rid3a/attrs floating-axes-style)
                             (.text #(.-label %)))))}
+               {:kind :elem-with-data
+                :class "student-labels-y"
+                :tag "text"
+                :prepare-dataset (fn [r] (prepare-dataset r :student))
+                :did-mount
+                (fn [node ratom]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
+                    (rid3-> node
+                            {:x #(label-x %2
+                                          ratom
+                                          y-scale
+                                          floating-axes-style
+                                          (+ (x-scale (.-label %1))
+                                             offset-to-center-x))
+                             :y #(label-y %2 ratom y-scale floating-axes-style :inner)
+                             :text-anchor "middle"}
+                            (rid3a/attrs floating-axes-style)
+                            (.text #(.-value %)))))}
                {:kind :elem-with-data
                 :class "student-points"
                 :tag "circle"
@@ -278,14 +299,6 @@
               ;;                ;;TODO pull from styles
               ;;                :r 3
               ;;                :fill (:stroke reference-line-style)})))}
-              ;;  {:kind :container
-              ;;   :class "x-axis"
-              ;;   :did-mount
-              ;;   (fn [node ratom]
-              ;;     (rid3-> node
-              ;;             {:transform (translate 0 (:height chart-area))}
-              ;;             (.call (.axisBottom js/d3 x-scale))
-              ;;             (style-axis axes-style)))}
                {:kind :elem
                 :class "x-axis-line"
                 :tag "line"
@@ -295,14 +308,23 @@
                           {:x1 0 :x2 (:width chart-area)
                            :y1 (:height chart-area) :y2 (:height chart-area)}
                           (rid3a/attrs (:line axes-style))))}
-               {:kind :container
-                :class "y-axis"
+              ;;  {:kind :container
+              ;;   :class "y-axis"
+              ;;   :did-mount
+              ;;   (fn [node ratom]
+              ;;     (rid3-> node
+              ;;             (.call (-> (.axisLeft js/d3 y-scale)
+              ;;                        (.ticks 3)))
+              ;;             (style-axis axes-style)))}
+               {:kind :elem
+                :class "y-axis-line"
+                :tag "line"
                 :did-mount
                 (fn [node ratom]
                   (rid3-> node
-                          (.call (-> (.axisLeft js/d3 y-scale)
-                                     (.ticks 3)))
-                          (style-axis axes-style)))}
+                          {:x1 0 :x2 0
+                           :y1 0 :y2 (:height chart-area)}
+                          (rid3a/attrs (:line axes-style))))}
                {:kind :container
                 :class "legend"
                 :did-mount
