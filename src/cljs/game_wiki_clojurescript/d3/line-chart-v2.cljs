@@ -31,7 +31,8 @@
                                       :fill "none"}
                      :legend {:font-size 18}
                      :axes {:line {:stroke "#aaa"}
-                            :text {:fill "#666"}}})
+                            :text {:fill "#666"}}
+                     :floating-axes {:fill "#aaa"}})
 
 (defn style-axis [node axis-style]
   (let [line-style (:line axis-style)
@@ -133,6 +134,7 @@
         reference-line-style (:reference-line final-styles)
         legend-style (:legend final-styles)
         axes-style (:axes final-styles)
+        floating-axes-style (:floating-axes final-styles)
         legend-position (->legend-positions ratom legend-style)]
     [rid3/viz
      {:id (get-in @ratom [:chart :id])
@@ -161,6 +163,20 @@
                                             offset-to-center-x))
                                     (.y #(y-scale (.-value %))))}
                             (rid3a/attrs student-line-style))))}
+               {:kind :elem-with-data
+                :class "student-labels"
+                :tag "text"
+                :prepare-dataset (fn [r] (prepare-dataset r :student))
+                :did-mount
+                (fn [node ratom]
+                  (let [offset-to-center-x (/ (.bandwidth x-scale) 2)]
+                    (rid3-> node
+                            {:x #(+ (x-scale (.-label %))
+                                    offset-to-center-x)
+                             :y #(y-scale (.-value %))
+                             :text-anchor "middle"}
+                            (rid3a/attrs floating-axes-style)
+                            (.text #(.-label %)))))}
                {:kind :elem
                 :class "reference-line"
                 :tag "path"
