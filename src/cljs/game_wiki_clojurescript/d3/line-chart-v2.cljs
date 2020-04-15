@@ -189,7 +189,7 @@
                                      offset-to-center-x)
                              :cy #(y-scale (.-value %1))
                              ;;TODO pull from styles
-                             :r 5
+                             :r 4
                              :fill (:stroke student-line-style)})))}
                {:kind :elem
                 :class "reference-line"
