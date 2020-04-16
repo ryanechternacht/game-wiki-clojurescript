@@ -3,6 +3,7 @@
             [game-wiki-clojurescript.d3.bar-chart :as bar]
             [game-wiki-clojurescript.d3.line-chart :as line]
             [game-wiki-clojurescript.d3.line-chart-v2 :as line-v2]
+            [game-wiki-clojurescript.d3.line-chart-v3 :as line-v3]
             [game-wiki-clojurescript.d3.tetherball-chart :as tetherball]
             [game-wiki-clojurescript.routing :as routing]
             [goog.string :as gstr]))
@@ -46,19 +47,20 @@
 (def line-chart-v2-dataset
   ;; TODO render this as different vectors
   ;; or multiple datapoints on one vector
-  {:reference [{:label "Spring 18" :value 200}
-               {:label "Fall 19" :value 210}
-               {:label "Winter 19" :value 220}
-               {:label "Spring 19" :value 230}
-               {:label "Fall 20" :value 240}
-               {:label "Winter 20" :value 250}]
-   :student [{:label "Spring 18" :value 220}
-             {:label "Fall 19" :value 204}
-             {:label "Winter 19" :value 224}
-             {:label "Spring 19" :value 244}
-             {:label "Fall 20" :value 236}
-             {:label "Winter 20" :value 250}]})
+  {:reference [{:label "Spring '18" :value 200}
+               {:label "Fall '19" :value 210}
+               {:label "Winter '19" :value 220}
+               {:label "Spring '19" :value 230}
+               {:label "Fall '20" :value 240}
+               {:label "Winter '20" :value 250}]
+   :student [{:label "Spring '18" :value 220}
+             {:label "Fall '19" :value 204}
+             {:label "Winter '19" :value 225}
+             {:label "Spring '19" :value 244}
+             {:label "Fall '20" :value 237}
+             {:label "Winter '20" :value 228}]})
 
+;; (def styles {})
 (def styles {:student-line {:stroke "red"
                             :stroke-width 4}
              :reference-line {:stroke "green"
@@ -73,6 +75,13 @@
     [:div
      [:h3 "Line Chart v2 Demo"]
      [line-v2/line-chart {:ratom ratom :styles styles}]]))
+
+(defn line-chart-v3-page []
+  (let [ratom (r/atom {:dataset line-chart-v2-dataset
+                       :chart line-chart-v2})]
+    [:div
+     [:h3 "Line Chart v3 Demo"]
+     [line-v3/line-chart {:ratom ratom :styles styles}]]))
 
 (def tetherball-chart-dataset-1 {:min 200
                                  :max 250
@@ -147,5 +156,7 @@
      [:a {:href (routing/path-for :d3-line-chart)} "Line Chart"]]
     [:li
      [:a {:href (routing/path-for :d3-line-chart-v2)} "Line Chart v2"]]
+    [:li
+     [:a {:href (routing/path-for :d3-line-chart-v3)} "Line Chart v3"]]
     [:li
      [:a {:href (routing/path-for :d3-tetherball-chart)} "Tetherball Chart"]]]])
