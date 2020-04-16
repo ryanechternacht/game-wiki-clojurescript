@@ -1,6 +1,7 @@
 (ns game-wiki-clojurescript.d3.views
   (:require [reagent.core :as r]
             [game-wiki-clojurescript.d3.bar-chart :as bar]
+            [game-wiki-clojurescript.d3.bar-chart-v2 :as bar-v2]
             [game-wiki-clojurescript.d3.line-chart :as line]
             [game-wiki-clojurescript.d3.line-chart-v2 :as line-v2]
             [game-wiki-clojurescript.d3.line-chart-v3 :as line-v3]
@@ -27,6 +28,23 @@
     [:div
      [:h3 "Bar Chart Demo"]
      [bar/bar-chart {:ratom ratom}]]))
+
+(def bar-chart-v2 {:title "My Chart"
+                   :id "my-chart"
+                   :width 400
+                   :height 400})
+
+(def bar-chart-dataset-v2 {:min 100
+                           :value 110
+                           :mouse-value 140
+                           :max 150})
+
+(defn bar-chart-v2-page []
+  (let [ratom (r/atom {:chart bar-chart-v2
+                       :dataset bar-chart-dataset-v2})]
+    [:div
+     [:h3 "Bar Chart v2 Demo"]
+     [bar-v2/bar-chart {:ratom ratom}]]))
 
 (def line-chart {:title "My Chart"
                  :width 200
@@ -152,6 +170,8 @@
    [:ul
     [:li
      [:a {:href (routing/path-for :d3-bar-chart)} "Bar Chart"]]
+    [:li
+     [:a {:href (routing/path-for :d3-bar-chart-v2)} "Bar Chart v2"]]
     [:li
      [:a {:href (routing/path-for :d3-line-chart)} "Line Chart"]]
     [:li

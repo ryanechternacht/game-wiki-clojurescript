@@ -20,6 +20,7 @@
     ["/d3" {:area :d3}
      ["" :d3-overview]
      ["/bar-chart" :d3-bar-chart]
+     ["/bar-chart-v2" :d3-bar-chart-v2]
      ["/line-chart" :d3-line-chart]
      ["/tetherball-chart" :d3-tetherball-chart]
      ["/line-chart-v2" :d3-line-chart-v2]

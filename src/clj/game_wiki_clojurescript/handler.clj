@@ -54,6 +54,7 @@
      ["/d3"
       ["" {:get {:handler index-handler}}]
       ["/bar-chart" {:get {:handler index-handler}}]
+      ["/bar-chart-v2" {:get {:handler index-handler}}]
       ["/line-chart" {:get {:handler index-handler}}]
       ["/line-chart-v2" {:get {:handler index-handler}}]
       ["/line-chart-v3" {:get {:handler index-handler}}]
