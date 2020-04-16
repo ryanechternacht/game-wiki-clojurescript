@@ -3,6 +3,7 @@
             [game-wiki-clojurescript.d3.bar-chart :as bar]
             [game-wiki-clojurescript.d3.line-chart :as line]
             [game-wiki-clojurescript.d3.line-chart-v2 :as line-v2]
+            [game-wiki-clojurescript.d3.line-chart-v3 :as line-v3]
             [game-wiki-clojurescript.d3.tetherball-chart :as tetherball]
             [game-wiki-clojurescript.routing :as routing]
             [goog.string :as gstr]))
@@ -59,14 +60,14 @@
              {:label "Fall '20" :value 237}
              {:label "Winter '20" :value 228}]})
 
-(def styles {})
-;; (def styles {:student-line {:stroke "red"
-;;                             :stroke-width 4}
-;;              :reference-line {:stroke "green"
-;;                               :stroke-dasharray "24 12"}
-;;              :legend {:font-size 24}
-;;              :axes {:line {:stroke "purple"}
-;;                     :text {:fill "orange"}}})
+;; (def styles {})
+(def styles {:student-line {:stroke "red"
+                            :stroke-width 4}
+             :reference-line {:stroke "green"
+                              :stroke-dasharray "24 12"}
+             :legend {:font-size 24}
+             :axes {:line {:stroke "purple"}
+                    :text {:fill "orange"}}})
 
 (defn line-chart-v2-page []
   (let [ratom (r/atom {:dataset line-chart-v2-dataset
@@ -74,6 +75,13 @@
     [:div
      [:h3 "Line Chart v2 Demo"]
      [line-v2/line-chart {:ratom ratom :styles styles}]]))
+
+(defn line-chart-v3-page []
+  (let [ratom (r/atom {:dataset line-chart-v2-dataset
+                       :chart line-chart-v2})]
+    [:div
+     [:h3 "Line Chart v3 Demo"]
+     [line-v3/line-chart {:ratom ratom :styles styles}]]))
 
 (def tetherball-chart-dataset-1 {:min 200
                                  :max 250
@@ -148,5 +156,7 @@
      [:a {:href (routing/path-for :d3-line-chart)} "Line Chart"]]
     [:li
      [:a {:href (routing/path-for :d3-line-chart-v2)} "Line Chart v2"]]
+    [:li
+     [:a {:href (routing/path-for :d3-line-chart-v3)} "Line Chart v3"]]
     [:li
      [:a {:href (routing/path-for :d3-tetherball-chart)} "Tetherball Chart"]]]])
