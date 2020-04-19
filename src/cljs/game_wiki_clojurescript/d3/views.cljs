@@ -39,12 +39,14 @@
                            :mouse-value 140
                            :max 150})
 
+(def bar-chart-styles-v2 {:bar {:fill "red"}})
+
 (defn bar-chart-v2-page []
   (let [ratom (r/atom {:chart bar-chart-v2
                        :dataset bar-chart-dataset-v2})]
     [:div
      [:h3 "Bar Chart v2 Demo"]
-     [bar-v2/bar-chart {:ratom ratom}]]))
+     [bar-v2/bar-chart {:ratom ratom :styles bar-chart-styles-v2}]]))
 
 (def line-chart {:title "My Chart"
                  :width 200

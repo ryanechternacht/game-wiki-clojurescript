@@ -12,6 +12,13 @@
         y (if (nil? y) 0 y)]
     (str "translate(" x "," y ")")))
 
+(defn- deep-merge [& maps]
+  (apply merge-with (fn [& args]
+                      (if (every? #(or (map? %) (nil? %)) args)
+                        (apply deep-merge args)
+                        (last args)))
+         maps))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart Params
 (def margin {:top 40
@@ -19,18 +26,28 @@
              :left 40
              :right 80})
 
-(def default-styles {:student-line {:stroke "blue"
-                                    :stroke-width 2
-                                    :fill "none"}
-                     :reference-line {:stroke "#aaa"
-                                      :stroke-dasharray "8 4"
-                                      :stroke-width 1
-                                      :fill "none"}
+(def default-styles {:bar {:fill "black"}
                      :legend {:font-size 18}
                      :axes {:line {:stroke "#aaa"}
                             :text {:fill "#666"}}})
 
+(defn- style-axis [node axis-style]
+  (let [line-style (:line axis-style)
+        text-style (:text axis-style)]
+    (do
+      (rid3-> node
+              (.select "path")
+              (rid3a/attrs line-style))
+      (rid3-> node
+              (.selectAll ".tick line")
+              (rid3a/attrs line-style))
+      (rid3-> node
+              (.selectAll ".tick text")
+              (rid3a/attrs text-style)))))
 
+(defn- build-style-map [default-styles user-styles]
+  ;; TODO add in intermediate styles
+  (deep-merge default-styles user-styles))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Build chart components
@@ -66,7 +83,9 @@
   (let [{:keys [chart dataset]} @ratom
         chart-area (->chart-area ratom)
         x-scale (->x-scale ratom)
-        y-scale (->y-scale ratom)]
+        y-scale (->y-scale ratom)
+        {axes-style :axes
+         bar-style :bar} (build-style-map default-styles styles)]
     [rid3/viz
      {:id "my-graph" ;; TODO
       :ratom ratom
@@ -91,6 +110,7 @@
                            :y #(y-scale (.-value %))
                            :width (.bandwidth x-scale)
                            :height #(- (:height chart-area) (y-scale (.-value %)))}
+                          (rid3a/attrs bar-style)
                           (.on "mouseover"
                                (fn [d i]
                                  (this-as this
@@ -113,15 +133,17 @@
                                                     {:y (y-scale value)
                                                      :height (- (:height chart-area)
                                                                 (y-scale value))})))))))}
-               {:kind :container
+               {:kind :elem
                 :class "x-axis"
+                :tag "line"
                 :did-mount
                 (fn [node ratom]
-                  (rid3-> node
-                          {:transform (translate 0 (:height chart-area))}
-                          (.call (.axisBottom js/d3 x-scale))
-                          ;; (style-axis axes-style)
-                          ))}
+                  ;; +.5 is to align with the y axis
+                  (let [y (+ (:height chart-area) .5)]
+                    (rid3-> node
+                            {:x1 0 :x2 (:width chart-area)
+                             :y1 y :y2 y}
+                            (rid3a/attrs (:line axes-style)))))}
                {:kind :container
                 :class "y-axis"
                 :did-mount
@@ -129,5 +151,4 @@
                   (rid3-> node
                           (.call (-> (.axisLeft js/d3 y-scale)
                                      (.ticks 3)))
-                          ;; (style-axis axes-style)
-                          ))}]}]))
+                          (style-axis axes-style)))}]}]))
