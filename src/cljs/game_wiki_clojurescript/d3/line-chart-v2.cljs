@@ -15,8 +15,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Chart Params
-;; TODO move these into the component itself so we can merge
-;; user supplied settings into these
 (def margin {:top 40
              :bottom 40
              :left 40
