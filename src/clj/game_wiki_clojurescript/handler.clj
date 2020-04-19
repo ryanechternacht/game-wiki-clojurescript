@@ -7,9 +7,13 @@
 
 (def mount-target
   [:div#app
-   [:h2 "Welcome to game-wiki-clojurescript"]
-   [:p "please wait while Figwheel is waking up ..."]
-   [:p "(Check the js console for hints if nothing exciting happens.)"]])
+   [:div {:style "position: relative; background-color: #007bff !important; display: flex;
+                  width: 100%; padding: .5rem 1rem; align-items: center"}
+    [:div {:style "color: white; padding: 0.3125rem 0; font-size: 1.25rem; display: inline-block;
+                   line-height: inherit"} "Game Wiki"]]
+   [:div {:style "max-width: 540px; width: 100%; padding: 0 15px; margin: 0 auto;"}
+    [:h5 {:style "margin-top: 20px;"} "One moment please..."]
+    [:h5 "We're getting everything ready just for you!"]]])
 
 (defn head []
   [:head
